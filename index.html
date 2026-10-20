@@ -3,304 +3,900 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="以統計離群值代理說明生成式 AI 不確定性與幻覺防制機制的互動教學模擬器">
-<title>AI 幻覺機制模擬器｜互動教學完整優化版</title>
+<meta name="description" content="用最白話的文字接龍、射標靶與開卷考實驗，帶一般人看懂為什麼 AI 會一本正經地胡說八道（幻覺），以及如何防範。">
+<title>為什麼 AI 會一本正經地胡說八道？｜AI 幻覺白話互動實驗室</title>
 <style>
 :root{
   --primary:#2563eb;--primary-dark:#1d4ed8;--cyan:#0891b2;--success:#15803d;
-  --danger:#dc2626;--warning:#b45309;--ink:#172033;--muted:#64748b;
-  --bg:#eef3f9;--card:#fff;--soft:#f8fafc;--line:#dbe4ef;--focus:#f59e0b;
-  --shadow:0 14px 38px rgba(15,23,42,.09);--radius:16px;--projection-yellow:#ffd43b;
+  --danger:#dc2626;--warning:#b45309;--ink:#172033;--muted:#52637a;
+  --bg:#f0f5fc;--card:#ffffff;--soft:#f8fafc;--line:#dbe4ef;--focus:#f59e0b;
+  --shadow:0 12px 34px rgba(15,23,42,.08);--radius:18px;--projection-yellow:#ffd43b;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:linear-gradient(180deg,#eaf2ff 0,#f8fafc 320px);color:var(--ink);font-family:"Microsoft JhengHei","Noto Sans TC",system-ui,sans-serif;line-height:1.55}
+html{scroll-behavior:smooth;scroll-padding-top:78px}
+body{margin:0;background:linear-gradient(180deg,#e6f0ff 0,#f4f7fb 360px);color:var(--ink);font-family:"PingFang TC","Microsoft JhengHei","Noto Sans TC",system-ui,sans-serif;line-height:1.6}
 button,input,select,textarea{font:inherit}
-button:focus-visible,input:focus-visible,summary:focus-visible,textarea:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
-.app{width:min(1560px,calc(100% - 32px));margin:24px auto 40px}
-.hero{position:relative;overflow:hidden;padding:26px 30px;border-radius:22px;color:#fff;background:linear-gradient(125deg,#1e3a8a,#2563eb 55%,#0891b2);box-shadow:var(--shadow)}
-.hero:after{content:"";position:absolute;right:-80px;top:-130px;width:330px;height:330px;border:70px solid rgba(255,255,255,.08);border-radius:50%}
-.eyebrow{font-size:.82rem;font-weight:800;letter-spacing:.12em;opacity:.85}.hero h1{margin:4px 0 8px;font-size:clamp(1.55rem,3vw,2.25rem);line-height:1.25}.hero p{margin:0;max-width:840px;color:#dbeafe}.hero-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.badge{padding:5px 10px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(255,255,255,.12);font-size:.82rem;font-weight:700}
-.notice{display:flex;gap:12px;align-items:flex-start;margin:16px 0;padding:14px 16px;border:1px solid #f5d08a;border-left:5px solid var(--warning);border-radius:12px;background:#fffaf0;color:#713f12}.notice strong{display:block}.notice-icon{font-size:1.25rem}
-.workspace{display:grid;grid-template-columns:340px minmax(0,1fr);gap:18px;align-items:start}
-.sidebar{position:sticky;top:14px;display:grid;gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 6px 20px rgba(15,23,42,.05)}
-.controls{padding:18px}.section-title{display:flex;align-items:center;justify-content:space-between;margin:0 0 14px;font-size:1.04rem}.section-title small{color:var(--muted);font-weight:500}
-.control{padding:14px 0;border-top:1px solid var(--line)}.control:first-of-type{border-top:0;padding-top:0}.label-row{display:flex;justify-content:space-between;gap:8px;align-items:center}.label-row label{font-weight:800}.value-pill{min-width:54px;padding:2px 8px;border-radius:999px;background:#dbeafe;color:#1e40af;text-align:center;font-weight:900;font-variant-numeric:tabular-nums}
-.hint{display:block;margin-top:5px;color:var(--muted);font-size:.79rem}.range-labels{display:flex;justify-content:space-between;color:var(--muted);font-size:.72rem}input[type=range]{width:100%;margin:10px 0 2px;accent-color:var(--primary)}
-.presets{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.preset{border:1px solid #bfd0e4;background:#fff;color:#334155;border-radius:9px;padding:8px 5px;cursor:pointer;font-size:.8rem;font-weight:800;transition:.15s}.preset:hover,.preset.active{color:#fff;background:var(--primary);border-color:var(--primary)}
-.actions{display:grid;gap:8px;margin-top:14px}.btn{border:0;border-radius:10px;padding:11px 12px;cursor:pointer;font-weight:900;transition:.18s transform,.18s background}.btn:hover{transform:translateY(-1px)}.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
-.btn-primary{color:#fff;background:var(--primary)}.btn-primary:hover{background:var(--primary-dark)}.btn-secondary{color:#fff;background:var(--cyan)}.btn-ghost{color:#475569;background:#f1f5f9;border:1px solid var(--line)}.action-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.summary{padding:16px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}.stat{padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--soft)}.stat.wide{grid-column:1/-1}.stat-label{color:var(--muted);font-size:.75rem;font-weight:700}.stat-value{margin-top:2px;font-size:1.38rem;font-weight:900;font-variant-numeric:tabular-nums}.stat-value.danger{color:var(--danger)}.stat-value.primary{color:var(--primary)}.progress{height:8px;margin-top:8px;border-radius:999px;background:#e2e8f0;overflow:hidden}.progress>div{height:100%;width:0;background:var(--danger);transition:width .2s}
-.content{min-width:0}.charts{display:grid;grid-template-columns:minmax(460px,3fr) minmax(330px,2fr);gap:14px}.chart-card{padding:14px;min-width:0}.chart-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:4px}.chart-title{font-weight:900}.chart-sub{color:var(--muted);font-size:.77rem}.chart-tag{white-space:nowrap;border-radius:999px;padding:4px 8px;background:#eff6ff;color:#1e40af;font-size:.74rem;font-weight:800}
-svg.main-svg{display:block;width:100%;height:auto;min-height:455px;user-select:none}
-#canvas-reg{cursor:ew-resize}
-.axis{stroke:#94a3b8;stroke-width:1}.gridline{stroke:#e2e8f0;stroke-width:1}.tick{fill:#64748b;font-size:11px}.region-label{font-size:12px;font-weight:800}.generated{filter:drop-shadow(0 2px 2px rgba(15,23,42,.18))}
-.legend{display:flex;justify-content:center;flex-wrap:wrap;gap:14px;margin-top:8px;padding-top:12px;border-top:1px solid var(--line);font-size:.8rem}.legend-item{display:flex;align-items:center;gap:6px}.dot{width:11px;height:11px;border-radius:50%}
-.feature-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.btn-dark{background:#172033;color:#fff}.btn-warn{background:#fff7ed;color:#8a4300;border:1px solid #e9b66e}
-.export-menu{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.export-menu .wide{grid-column:1/-1}
-.tour-overlay{position:fixed;inset:0;background:rgba(2,8,23,.68);z-index:90;display:none}.tour-overlay.show{display:block}
-.tour-card{position:fixed;z-index:92;width:min(400px,calc(100vw - 28px));padding:18px;border-radius:16px;background:#fff;color:#172033;box-shadow:0 24px 70px rgba(0,0,0,.35);display:none}
-.tour-card.show{display:block}.tour-step{color:#1d4ed8;font-size:.78rem;font-weight:900;letter-spacing:.08em}.tour-card h3{margin:4px 0 7px;font-size:1.2rem}.tour-card p{margin:0;color:#475569}.tour-actions{display:flex;align-items:center;gap:7px;margin-top:16px}.tour-actions .btn{padding:8px 10px}.tour-progress{margin-right:auto;color:#64748b;font-size:.78rem;font-weight:800}
-.tour-highlight{position:relative;z-index:91!important;box-shadow:0 0 0 5px var(--projection-yellow),0 0 0 9999px rgba(2,8,23,.2)!important;border-radius:12px}
-.toast{position:fixed;right:20px;bottom:20px;z-index:999;max-width:340px;padding:11px 14px;border-radius:10px;background:#172033;color:#fff;box-shadow:var(--shadow);opacity:0;transform:translateY(12px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:none}
+button:focus-visible,input:focus-visible,summary:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
 
-/* Projection & Print */
-body.projection{--primary:#0057d9;--primary-dark:#003f9e;--cyan:#006b80;--success:#08752b;--danger:#c40018;--warning:#8a4300;--ink:#07152b;--muted:#334155;--line:#9aabc0;background:#eef3f8;font-size:18px}
-body.projection .card{border-width:2px;box-shadow:0 5px 16px rgba(0,0,0,.13)}body.projection .hero{background:#073b86}
-body.projection .chart-title,body.projection .section-title{font-size:1.18rem}body.projection .chart-sub,body.projection .hint,body.projection .tick{color:#24344d;fill:#24344d;font-size:13px}
-body.projection svg.main-svg{min-height:500px}body.projection .gridline{stroke:#b5c0ce}body.projection .btn,body.projection .preset{border-width:2px}
-@media print{.sidebar,.notice,.feature-toolbar,.export-menu,.tour-overlay,.tour-card{display:none!important}.workspace{display:block}.hero{background:#fff!important;color:#000!important;box-shadow:none;border:2px solid #000}.hero p{color:#000}.charts{grid-template-columns:1fr 1fr}.card{box-shadow:none}}
+.app{width:min(1440px,calc(100% - 32px));margin:20px auto 56px}
 
-/* Reliability Chain & Learning Center */
-.learning-center{margin-top:14px;overflow:hidden}
-.learning-head{padding:18px 20px 10px}.learning-head h2{margin:0;color:#0f2f67;font-size:1.25rem}.learning-head p{margin:5px 0 0;color:var(--muted);font-size:.88rem}
-.tab-list{display:flex;gap:5px;padding:0 18px 12px;overflow-x:auto;scrollbar-width:thin;border-bottom:1px solid var(--line)}
-.tab-btn{flex:0 0 auto;border:1px solid #aabbd0;background:#f8fafc;color:#334155;border-radius:10px 10px 0 0;padding:9px 13px;cursor:pointer;font-weight:900}.tab-btn:hover{background:#eaf2ff}.tab-btn[aria-selected="true"]{background:#073b86;color:#fff;border-color:#073b86}
-.tab-panel{display:none;padding:18px 22px 22px}.tab-panel.active{display:block}.tab-panel h3{margin:0 0 9px;color:#174ea6}.tab-panel h4{margin:18px 0 7px}.tab-panel p{color:#334155}
-.concept-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+/* Hero */
+.hero{position:relative;overflow:hidden;padding:28px 32px;border-radius:22px;color:#fff;background:linear-gradient(125deg,#1e3a8a,#2563eb 56%,#0891b2);box-shadow:var(--shadow)}
+.hero:after{content:"";position:absolute;right:-70px;top:-120px;width:320px;height:320px;border:64px solid rgba(255,255,255,.08);border-radius:50%;pointer-events:none}
+.eyebrow{display:inline-block;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.16);font-size:.8rem;font-weight:800;letter-spacing:.08em}
+.hero h1{margin:10px 0 10px;font-size:clamp(1.6rem,3vw,2.35rem);line-height:1.25}
+.hero p{margin:0;max-width:880px;color:#e0f2fe;font-size:1.03rem}
+.hero-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.badge{padding:5px 12px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(255,255,255,.13);font-size:.82rem;font-weight:700}
+
+/* Sticky Step Nav */
+.step-nav{position:sticky;top:10px;z-index:40;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:16px 0 22px;padding:10px 14px;border:1px solid #cbd5e1;border-radius:16px;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);box-shadow:0 8px 24px rgba(15,23,42,.08)}
+.step-links{display:flex;flex-wrap:wrap;gap:6px}
+.step-link{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:10px;color:#1e293b;text-decoration:none;font-size:.88rem;font-weight:800;transition:.15s}
+.step-link:hover{background:#eff6ff;color:var(--primary)}
+.step-link .num{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#dbeafe;color:#1e40af;font-size:.76rem;font-weight:900}
+.nav-tools{display:flex;flex-wrap:wrap;gap:8px}
+
+/* Stage Section Wrapper */
+.stage{margin-bottom:28px;padding:24px 26px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 6px 20px rgba(15,23,42,.05)}
+.stage-header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid #eef2f7}
+.stage-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;background:#dbeafe;color:#1e40af;font-size:.8rem;font-weight:900}
+.stage-header h2{margin:6px 0 6px;color:#0f2f67;font-size:clamp(1.28rem,2.2vw,1.6rem)}
+.stage-header p{margin:0;color:var(--muted);max-width:860px;font-size:.95rem}
+.jargon-tag{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:6px;background:#f1f5f9;border:1px solid #cbd5e1;color:#475569;font-size:.75rem;font-weight:700;vertical-align:middle}
+
+/* Buttons */
+.btn{border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:800;font-size:.88rem;transition:.16s transform,.16s background;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.58;cursor:not-allowed;transform:none}
+.btn-primary{color:#fff;background:var(--primary)}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-secondary{color:#fff;background:var(--cyan)}
+.btn-ghost{color:#334155;background:#f1f5f9;border:1px solid #cbd5e1}
+.btn-ghost:hover{background:#e2e8f0}
+.btn-dark{background:#172033;color:#fff}
+.btn-warn{background:#fff7ed;color:#8a4300;border:1px solid #e9b66e}
+
+/* Concept Cards & Metaphor Callouts */
+.concept-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .concept-grid.grid-4{grid-template-columns:repeat(4,1fr)}
-.concept-card{padding:13px;border:1px solid var(--line);border-radius:11px;background:#f8fafc}.concept-card b{display:block;color:#153e75;margin-bottom:4px}.concept-card p{margin:0;font-size:.86rem}.scope-note{margin-top:12px;padding:11px 13px;border-left:5px solid #b45309;background:#fff7ed;color:#713f12;border-radius:8px}.scope-note.blue{border-color:#2563eb;background:#eff6ff;color:#1e3a8a}
-.reliability-wrap{padding:18px 20px}.reliability-title{display:flex;justify-content:space-between;gap:12px;align-items:flex-end}.reliability-title h2{margin:0;color:#0f2f67;font-size:1.25rem}.reliability-title p{margin:0;color:var(--muted);font-size:.82rem}.reliability-chain{display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));gap:22px;margin-top:16px;overflow-x:auto;padding:4px 4px 16px}
-.chain-node{position:relative;min-height:134px;padding:12px;border:2px solid #91a5be;border-radius:12px;background:#fff;cursor:pointer;transition:.16s}
-.chain-node:hover{transform:translateY(-3px);border-color:#2563eb;box-shadow:0 8px 20px rgba(15,23,42,.12)}.chain-node:not(:last-child):after{content:"→";position:absolute;right:-20px;top:44px;color:#174ea6;font-size:1.45rem;font-weight:900}.chain-num{display:inline-grid;place-items:center;width:27px;height:27px;border-radius:50%;background:#073b86;color:#fff;font-weight:900}.chain-node b{display:block;margin:7px 0 3px;color:#102a56}.chain-node small{display:block;color:#475569;line-height:1.4}.chain-risk{margin-top:7px;padding-top:6px;border-top:1px dashed #aabbd0;color:#9a3412;font-size:.73rem;font-weight:800}.chain-node.control{background:#f0fdf4;border-color:#4d9c68}.chain-node.check{background:#fff7ed;border-color:#cd8d37}.chain-node.active{border-color:#073b86;background:#eff6ff;box-shadow:0 0 0 4px #bfdbfe}
-.chain-detail{margin-top:2px;padding:16px 18px;border:2px solid #8ca4c0;border-radius:13px;background:linear-gradient(135deg,#f8fbff,#fff)}.chain-detail-head{display:flex;align-items:flex-start;gap:11px}.chain-detail-icon{display:grid;place-items:center;flex:0 0 38px;height:38px;border-radius:50%;background:#073b86;color:#fff;font-size:1.1rem;font-weight:900}.chain-detail h3{margin:0;color:#0f2f67}.chain-detail-sub{margin:2px 0 0;color:#64748b;font-size:.82rem}.chain-detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:13px}.chain-detail-card{padding:11px;border:1px solid #b6c4d4;border-radius:9px;background:#fff}.chain-detail-card b{display:block;margin-bottom:4px;color:#174ea6}.chain-detail-card p{margin:0;color:#334155;font-size:.82rem}.chain-tip{margin-top:10px;padding:9px 11px;border-left:5px solid #15803d;background:#f0fdf4;color:#14532d;border-radius:7px;font-size:.84rem;font-weight:700}
+.concept-card{padding:14px 16px;border:1px solid var(--line);border-radius:13px;background:#f8fafc}
+.concept-card b{display:block;color:#153e75;margin-bottom:5px;font-size:.96rem}
+.concept-card p{margin:0;color:#334155;font-size:.88rem}
+.scope-note{margin-top:14px;padding:13px 16px;border-left:5px solid #b45309;background:#fff7ed;color:#713f12;border-radius:10px;font-size:.9rem}
+.scope-note.blue{border-color:#2563eb;background:#eff6ff;color:#1e3a8a}
+.scope-note.green{border-color:#15803d;background:#f0fdf4;color:#14532d}
 
-/* RAG Lab & Refusal Scenario */
-.rag-lab{display:grid;grid-template-columns:minmax(280px,.9fr) minmax(380px,1.35fr);gap:14px}.rag-box{border:1px solid var(--line);border-radius:12px;background:#f8fafc;padding:14px}.rag-box h4{margin:0 0 9px;color:#173b70}.rag-question{width:100%;min-height:70px;resize:vertical;border:2px solid #9fb0c5;border-radius:9px;padding:10px;background:#fff;color:#172033}.rag-modes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}.rag-mode{border:2px solid #94a3b8;border-radius:9px;background:#fff;padding:8px 3px;cursor:pointer;font-size:.78rem;font-weight:900;transition:.15s}.rag-mode.active{background:#073b86;color:#fff;border-color:#073b86}.doc-list{display:grid;gap:7px}.doc{padding:9px 10px;border:1px solid #bbc8d6;border-radius:8px;background:#fff;font-size:.82rem}.doc strong{color:#174ea6}.doc.retrieved{border:3px solid #2563eb;background:#eff6ff}.doc.mismatch{border:3px solid #c2410c;background:#fff7ed}.doc.refusal{border:2px dashed #94a3b8;background:#f1f5f9;opacity:.7}
-.rag-flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:9px 0}.flow-chip{padding:5px 8px;border-radius:999px;background:#e2e8f0;color:#334155;font-size:.75rem;font-weight:800}.flow-chip.on{background:#dbeafe;color:#1e40af}.flow-arrow{color:#64748b;font-weight:900}.answer-card{border:2px solid #8fa4bd;border-radius:11px;background:#fff;padding:13px}.answer-card.good{border-color:#15803d}.answer-card.warn{border-color:#c2410c}.answer-card.refusal{border-color:#2563eb;background:#f8fbff}.answer-label{font-size:.76rem;color:#64748b;font-weight:900}.answer-text{margin:6px 0;color:#172033}.citation-chip{display:inline-block;margin:4px 5px 0 0;padding:4px 7px;border-radius:7px;background:#dbeafe;color:#1e3a8a;font-size:.75rem;font-weight:800}.verification{margin-top:10px;padding:10px;border-radius:9px;font-size:.84rem;font-weight:800}.verification.good{background:#dcfce7;color:#14532d}.verification.warn{background:#ffedd5;color:#7c2d12}.verification.refusal{background:#eff6ff;color:#1e40af}.rag-score{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.score{padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff;text-align:center}.score span{display:block;color:#64748b;font-size:.7rem}.score b{font-size:1rem}.rag-help{margin-top:10px;color:#475569;font-size:.8rem}.rag-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.rag-step{position:relative;padding:11px 10px;border:2px solid #a8b7c9;border-radius:10px;background:#fff}.rag-step:not(:last-child):after{content:'›';position:absolute;right:-9px;top:31%;z-index:2;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#073b86;color:#fff;font-weight:900}.rag-step-num{display:inline-block;color:#174ea6;font-size:.72rem;font-weight:900}.rag-step b{display:block;color:#172b4d;margin:2px 0}.rag-step small{display:block;color:#475569;line-height:1.4}.scenario-guide{margin:10px 0 12px;border:1px solid #aebed0;border-radius:10px;background:#fff;overflow:hidden}.scenario-guide summary{padding:11px 13px;background:#eef4fb;color:#173b70;cursor:pointer;font-weight:900}.scenario-guide-body{padding:12px 14px}.scenario-guide-body ol{margin:0;padding-left:20px}.scenario-guide-body li{margin:6px 0;color:#334155}.scenario-guide-body strong{color:#174ea6}.rag-mode-help{min-height:42px;margin:0 0 9px;padding:9px 11px;border-left:5px solid #2563eb;border-radius:7px;background:#eff6ff;color:#1e3a8a;font-size:.82rem;font-weight:700}.rag-observe{margin-top:10px;padding:10px 12px;border:1px dashed #7890aa;border-radius:9px;background:#f8fafc}.rag-observe b{color:#173b70}.rag-observe ul{margin:5px 0 0;padding-left:20px;color:#475569;font-size:.82rem}
-
-/* 機率決策樹互動 & 直觀動態樹狀生成器 */
-.path-lab{display:grid;grid-template-columns:minmax(280px,.85fr) minmax(420px,1.4fr);gap:14px;margin-top:12px}.path-box{padding:15px;border:1px solid var(--line);border-radius:12px;background:#f8fafc}.path-box h4{margin:0 0 10px;color:#173b70}.path-controls{display:grid;gap:10px}.path-input{width:100%;border:2px solid #9fb0c5;border-radius:9px;padding:10px}.path-scenarios{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.path-scenario{border:2px solid #94a3b8;border-radius:9px;background:#fff;padding:8px 4px;cursor:pointer;font-size:.78rem;font-weight:900}.path-scenario.active{background:#073b86;color:#fff;border-color:#073b86}
-.path-output{margin-top:10px;padding:12px;border-left:5px solid #15803d;border-radius:8px;background:#f0fdf4;color:#14532d;font-weight:800}.path-history{margin-top:10px;color:#475569;font-size:.8rem}.path-history ol{margin:5px 0 0;padding-left:20px}.path-formula{margin:10px 0;padding:10px;border-radius:8px;background:#172033;color:#e2e8f0;font-family:monospace;overflow:auto}
-.tree-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 12px}.tree-stage{position:relative;min-height:520px;overflow:auto;border:1px solid #aabbd0;border-radius:14px;background:radial-gradient(circle at 50% 0,#e0efff 0,#f8fbff 42%,#fff 100%)}
-.tree-canvas{position:relative;width:100%;min-width:680px;height:500px}.tree-lines{position:absolute;inset:0;width:100%;height:100%;min-height:500px;overflow:visible;pointer-events:none}
+/* Stage 1: Token Tree Lab */
+.path-formula{margin:14px 0;padding:11px 14px;border-radius:10px;background:#172033;color:#e2e8f0;font-size:.88rem;font-weight:700;text-align:center}
+.path-lab{display:grid;grid-template-columns:minmax(300px,.88fr) minmax(420px,1.4fr);gap:16px;margin-top:14px}
+.path-box{padding:16px;border:1px solid var(--line);border-radius:14px;background:#f8fafc}
+.path-box h3{margin:0 0 10px;color:#173b70;font-size:1.05rem}
+.path-controls{display:grid;gap:10px}
+.path-input{width:100%;border:2px solid #9fb0c5;border-radius:9px;padding:10px;background:#fff}
+.path-scenarios{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.path-scenario{border:2px solid #94a3b8;border-radius:9px;background:#fff;padding:8px 6px;cursor:pointer;font-size:.8rem;font-weight:900;transition:.15s}
+.path-scenario.active{background:#073b86;color:#fff;border-color:#073b86}
+.path-output{margin-top:10px;padding:12px;border-left:5px solid #15803d;border-radius:8px;background:#f0fdf4;color:#14532d;font-weight:800}
+.path-history{margin-top:10px;color:#475569;font-size:.84rem}
+.path-history ol{margin:5px 0 0;padding-left:20px}
+.tree-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0 8px}
+.tree-stage{position:relative;min-height:490px;overflow:auto;border:1px solid #aabbd0;border-radius:14px;background:radial-gradient(circle at 50% 0,#e0efff 0,#f8fbff 42%,#fff 100%)}
+.tree-canvas{position:relative;width:100%;min-width:650px;height:480px}
+.tree-lines{position:absolute;inset:0;width:100%;height:100%;min-height:480px;overflow:visible;pointer-events:none}
 .tree-edge{fill:none;stroke:#94a3b8;stroke-width:2.2;opacity:.55;stroke-dasharray:6 5;vector-effect:non-scaling-stroke}
 .tree-edge.active{stroke:#16a34a;stroke-width:3.8;opacity:1;stroke-dasharray:none;animation:edgeFlow .65s ease both}
 .tree-edge.risky{stroke:#ea580c;opacity:.65}
 .tree-edge.risky.active{stroke:#dc2626;stroke-width:3.8;opacity:1}
-.tree-token{position:absolute;transform:translate(-50%,-50%) scale(.84);width:144px;min-height:58px;padding:8px;border:2px solid #9fb0c5;border-radius:12px;background:#fff;text-align:center;box-shadow:0 5px 14px rgba(15,23,42,.08);opacity:0;transition:opacity .35s,transform .35s,filter .35s;z-index:2}.tree-token.visible{opacity:1;transform:translate(-50%,-50%) scale(1)}.tree-token.selected{border-color:#16a34a;background:#dcfce7;box-shadow:0 0 0 4px #bbf7d0,0 8px 18px rgba(22,163,74,.16);z-index:4}.tree-token.risky{border-color:#ea580c;background:#fff7ed}.tree-token.risky.selected{border-color:#dc2626;background:#fee2e2;box-shadow:0 0 0 4px #fecaca}.tree-token.root{width:210px;border-color:#0755a5;background:#dbeafe;font-weight:900;z-index:3}.tree-token .pct{display:block;margin-top:3px;color:#1d4ed8;font-weight:900}.tree-token .tag{display:inline-block;margin-top:4px;padding:2px 6px;border-radius:999px;background:#e2e8f0;color:#475569;font-size:.68rem}.tree-token.selected .tag{background:#15803d;color:#fff}.tree-token.risky.selected .tag{background:#dc2626;color:#fff}
-.tree-playhead{position:absolute;width:16px;height:16px;border:4px solid #fff;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.25);transform:translate(-50%,-50%);opacity:0;z-index:8;transition:left .5s ease,top .5s ease,opacity .25s}.tree-playhead.show{opacity:1;animation:pulseHead 1.2s infinite}.tree-status{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.tree-stat{padding:9px;border:1px solid #cbd5e1;border-radius:9px;background:#fff}.tree-stat small{display:block;color:#64748b}.tree-stat b{color:#173b70}.mechanism-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.mechanism-card{padding:12px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc}.mechanism-card b{color:#173b70}.mechanism-card p{margin:5px 0 0}.limit-list{display:grid;gap:8px;margin-top:10px}.limit-item{padding:10px 12px;border-left:5px solid #b45309;border-radius:8px;background:#fff7ed}.code-details{margin-top:12px;border:1px solid #aabbd0;border-radius:10px;background:#fff}.code-details summary{padding:11px;cursor:pointer;font-weight:900;color:#173b70}.code-details pre{margin:0;padding:12px;background:#172033;color:#e2e8f0;overflow:auto;font-size:.76rem}
+.tree-token{position:absolute;transform:translate(-50%,-50%) scale(.84);width:148px;min-height:58px;padding:8px;border:2px solid #9fb0c5;border-radius:12px;background:#fff;text-align:center;box-shadow:0 5px 14px rgba(15,23,42,.08);opacity:0;transition:opacity .35s,transform .35s;z-index:2}
+.tree-token.visible{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.tree-token.selected{border-color:#16a34a;background:#dcfce7;box-shadow:0 0 0 4px #bbf7d0,0 8px 18px rgba(22,163,74,.16);z-index:4}
+.tree-token.risky{border-color:#ea580c;background:#fff7ed}
+.tree-token.risky.selected{border-color:#dc2626;background:#fee2e2;box-shadow:0 0 0 4px #fecaca}
+.tree-token.root{width:220px;border-color:#0755a5;background:#dbeafe;font-weight:900;z-index:3}
+.tree-token .pct{display:block;margin-top:3px;color:#1d4ed8;font-weight:900;font-size:.84rem}
+.tree-token .tag{display:inline-block;margin-top:4px;padding:2px 7px;border-radius:999px;background:#e2e8f0;color:#475569;font-size:.69rem;font-weight:700}
+.tree-token.selected .tag{background:#15803d;color:#fff}
+.tree-token.risky.selected .tag{background:#dc2626;color:#fff}
+.tree-playhead{position:absolute;width:16px;height:16px;border:4px solid #fff;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.25);transform:translate(-50%,-50%);opacity:0;z-index:8;transition:left .5s ease,top .5s ease,opacity .25s}
+.tree-playhead.show{opacity:1;animation:pulseHead 1.2s infinite}
+.tree-status{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.tree-stat{padding:9px 11px;border:1px solid #cbd5e1;border-radius:9px;background:#fff}
+.tree-stat small{display:block;color:#64748b;font-size:.74rem}
+.tree-stat b{color:#173b70;font-size:.9rem}
+
+/* Stage 2: Target / Sampling Lab */
+.sim-workspace{display:grid;grid-template-columns:360px minmax(0,1fr);gap:18px;align-items:start}
+.sim-sidebar{display:grid;gap:14px}
+.subcard{background:#f8fafc;border:1px solid var(--line);border-radius:15px;padding:16px}
+.section-title{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;font-size:1.02rem;color:#0f2f67}
+.section-title small{color:var(--muted);font-weight:600;font-size:.78rem}
+.control{padding:13px 0;border-top:1px solid var(--line)}
+.control:first-of-type{border-top:0;padding-top:0}
+.label-row{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.label-row label{font-weight:800;font-size:.93rem}
+.value-pill{min-width:60px;padding:2px 9px;border-radius:999px;background:#dbeafe;color:#1e40af;text-align:center;font-weight:900;font-size:.86rem;font-variant-numeric:tabular-nums}
+.hint{display:block;margin-top:6px;color:var(--muted);font-size:.81rem;line-height:1.48}
+.range-labels{display:flex;justify-content:space-between;color:var(--muted);font-size:.74rem;font-weight:700}
+input[type=range]{width:100%;margin:9px 0 3px;accent-color:var(--primary)}
+.presets{display:grid;grid-template-columns:1fr;gap:7px;margin-top:6px}
+.preset{display:flex;align-items:center;justify-content:space-between;border:1px solid #bfd0e4;background:#fff;color:#1e293b;border-radius:10px;padding:9px 12px;cursor:pointer;font-size:.83rem;font-weight:800;text-align:left;transition:.15s}
+.preset span.tag-mini{padding:2px 7px;border-radius:999px;background:#f1f5f9;color:#475569;font-size:.72rem}
+.preset:hover,.preset.active{color:#fff;background:var(--primary);border-color:var(--primary)}
+.preset:hover span.tag-mini,.preset.active span.tag-mini{background:rgba(255,255,255,.22);color:#fff}
+.actions{display:grid;gap:8px;margin-top:12px}
+.action-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.stat{padding:11px;border:1px solid var(--line);border-radius:11px;background:#fff}
+.stat.wide{grid-column:1/-1}
+.stat-label{color:var(--muted);font-size:.76rem;font-weight:700}
+.stat-value{margin-top:2px;font-size:1.32rem;font-weight:900;font-variant-numeric:tabular-nums}
+.stat-value.danger{color:var(--danger)}
+.stat-value.primary{color:var(--primary)}
+.progress{height:8px;margin-top:7px;border-radius:999px;background:#e2e8f0;overflow:hidden}
+.progress>div{height:100%;width:0;background:var(--danger);transition:width .2s}
+.diagnosis-box{margin-top:10px;padding:11px 13px;border-radius:10px;border-left:5px solid var(--primary);background:#eff6ff;color:#1e3a8a;font-size:.83rem;font-weight:700}
+.diagnosis-box.warn{border-color:var(--danger);background:#fef2f2;color:#991b1b}
+.export-menu{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+.export-menu .wide{grid-column:1/-1}
+
+.charts{display:grid;grid-template-columns:minmax(440px,1.45fr) minmax(320px,1fr);gap:14px}
+.chart-card{padding:15px;border:1px solid var(--line);border-radius:15px;background:#fff;min-width:0}
+.chart-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:6px}
+.chart-title{font-weight:900;font-size:1rem;color:#0f2f67}
+.chart-sub{color:var(--muted);font-size:.79rem;margin-top:2px}
+.chart-tag{white-space:nowrap;border-radius:999px;padding:4px 10px;background:#eff6ff;color:#1e40af;font-size:.75rem;font-weight:800}
+svg.main-svg{display:block;width:100%;height:auto;min-height:445px;user-select:none}
+#canvas-reg{cursor:ew-resize}
+.axis{stroke:#94a3b8;stroke-width:1}
+.gridline{stroke:#e2e8f0;stroke-width:1}
+.tick{fill:#64748b;font-size:11px}
+.region-label{font-size:12px;font-weight:800}
+.generated{filter:drop-shadow(0 2px 2px rgba(15,23,42,.18))}
+.legend{display:flex;justify-content:center;flex-wrap:wrap;gap:14px;margin-top:8px;padding-top:10px;border-top:1px solid var(--line);font-size:.8rem}
+.legend-item{display:flex;align-items:center;gap:6px}
+.dot{width:11px;height:11px;border-radius:50%}
+
+/* Stage 3: RAG Lab */
+.rag-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 16px}
+.rag-step{position:relative;padding:12px 13px;border:2px solid #cbd5e1;border-radius:12px;background:#f8fafc}
+.rag-step:not(:last-child):after{content:'→';position:absolute;right:-13px;top:36%;z-index:2;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#073b86;color:#fff;font-size:.78rem;font-weight:900}
+.rag-step-num{display:inline-block;color:#174ea6;font-size:.74rem;font-weight:900}
+.rag-step b{display:block;color:#172b4d;margin:3px 0}
+.rag-step small{display:block;color:#475569;line-height:1.42;font-size:.8rem}
+.rag-lab{display:grid;grid-template-columns:minmax(300px,.95fr) minmax(380px,1.3fr);gap:16px}
+.rag-box{border:1px solid var(--line);border-radius:14px;background:#f8fafc;padding:16px}
+.rag-box h3{margin:0 0 10px;color:#173b70;font-size:1.04rem}
+.rag-question{width:100%;min-height:66px;resize:vertical;border:2px solid #9fb0c5;border-radius:9px;padding:10px;background:#fff;color:#172033}
+.rag-modes{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}
+.rag-mode{border:2px solid #94a3b8;border-radius:10px;background:#fff;padding:9px 8px;cursor:pointer;font-size:.82rem;font-weight:900;transition:.15s;text-align:left}
+.rag-mode small{display:block;font-weight:600;color:#64748b;font-size:.73rem;margin-top:2px}
+.rag-mode.active{background:#073b86;color:#fff;border-color:#073b86}
+.rag-mode.active small{color:#dbeafe}
+.rag-mode-help{margin:0 0 10px;padding:10px 12px;border-left:5px solid #2563eb;border-radius:8px;background:#eff6ff;color:#1e3a8a;font-size:.84rem;font-weight:700}
+.doc-list{display:grid;gap:8px}
+.doc{padding:10px 12px;border:1px solid #bbc8d6;border-radius:9px;background:#fff;font-size:.84rem}
+.doc strong{color:#174ea6}
+.doc.retrieved{border:3px solid #2563eb;background:#eff6ff}
+.doc.mismatch{border:3px solid #c2410c;background:#fff7ed}
+.doc.refusal{border:2px dashed #94a3b8;background:#f1f5f9;opacity:.72}
+.rag-flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 12px}
+.flow-chip{padding:5px 10px;border-radius:999px;background:#e2e8f0;color:#334155;font-size:.76rem;font-weight:800}
+.flow-chip.on{background:#dbeafe;color:#1e40af}
+.flow-arrow{color:#64748b;font-weight:900}
+.answer-card{border:2px solid #8fa4bd;border-radius:12px;background:#fff;padding:14px}
+.answer-card.good{border-color:#15803d}
+.answer-card.warn{border-color:#c2410c}
+.answer-card.refusal{border-color:#2563eb;background:#f8fbff}
+.answer-label{font-size:.76rem;color:#64748b;font-weight:900}
+.answer-text{margin:6px 0;color:#172033;font-size:.94rem}
+.citation-chip{display:inline-block;margin:4px 5px 0 0;padding:4px 9px;border-radius:7px;background:#dbeafe;color:#1e3a8a;font-size:.76rem;font-weight:800}
+.verification{margin-top:10px;padding:11px 12px;border-radius:9px;font-size:.86rem;font-weight:800}
+.verification.good{background:#dcfce7;color:#14532d}
+.verification.warn{background:#ffedd5;color:#7c2d12}
+.verification.refusal{background:#eff6ff;color:#1e40af}
+.rag-score{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.score{padding:9px;border:1px solid var(--line);border-radius:9px;background:#fff;text-align:center}
+.score span{display:block;color:#64748b;font-size:.73rem}
+.score b{font-size:.98rem}
+.rag-observe{margin-top:10px;padding:11px 13px;border:1px dashed #7890aa;border-radius:9px;background:#fff}
+.rag-observe b{color:#173b70;font-size:.86rem}
+.rag-observe ul{margin:5px 0 0;padding-left:20px;color:#475569;font-size:.84rem}
+
+/* Stage 4: Practical Guide, Traffic Light & 7-Step Chain */
+.sub-heading{margin:24px 0 10px;color:#0f2f67;font-size:1.15rem;display:flex;align-items:center;gap:8px}
+.traffic-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.traffic-card{padding:15px;border-radius:13px;border:2px solid transparent}
+.traffic-card.green{background:#f0fdf4;border-color:#86efac;color:#14532d}
+.traffic-card.yellow{background:#fefce8;border-color:#fde047;color:#713f12}
+.traffic-card.red{background:#fef2f2;border-color:#fca5a5;color:#7f1d1d}
+.traffic-card b{display:block;font-size:1rem;margin-bottom:6px}
+.traffic-card p{margin:0;font-size:.87rem}
+
+.reliability-chain{display:grid;grid-template-columns:repeat(7,minmax(125px,1fr));gap:18px;margin-top:12px;overflow-x:auto;padding:4px 4px 14px}
+.chain-node{position:relative;min-height:132px;padding:12px;border:2px solid #91a5be;border-radius:12px;background:#fff;cursor:pointer;transition:.16s}
+.chain-node:hover{transform:translateY(-3px);border-color:#2563eb;box-shadow:0 8px 20px rgba(15,23,42,.1)}
+.chain-node:not(:last-child):after{content:"→";position:absolute;right:-17px;top:44px;color:#174ea6;font-size:1.3rem;font-weight:900}
+.chain-num{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#073b86;color:#fff;font-weight:900;font-size:.82rem}
+.chain-node b{display:block;margin:7px 0 3px;color:#102a56;font-size:.9rem}
+.chain-node small{display:block;color:#475569;line-height:1.38;font-size:.78rem}
+.chain-risk{margin-top:7px;padding-top:6px;border-top:1px dashed #aabbd0;color:#9a3412;font-size:.72rem;font-weight:800}
+.chain-node.control{background:#f0fdf4;border-color:#4d9c68}
+.chain-node.check{background:#fff7ed;border-color:#cd8d37}
+.chain-node.active{border-color:#073b86;background:#eff6ff;box-shadow:0 0 0 4px #bfdbfe}
+.chain-detail{margin-top:4px;padding:16px 18px;border:2px solid #8ca4c0;border-radius:13px;background:linear-gradient(135deg,#f8fbff,#fff)}
+.chain-detail-head{display:flex;align-items:flex-start;gap:11px}
+.chain-detail-icon{display:grid;place-items:center;flex:0 0 36px;height:36px;border-radius:50%;background:#073b86;color:#fff;font-size:1.05rem;font-weight:900}
+.chain-detail h3{margin:0;color:#0f2f67;font-size:1.08rem}
+.chain-detail-sub{margin:2px 0 0;color:#64748b;font-size:.84rem}
+.chain-detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.chain-detail-card{padding:11px;border:1px solid #b6c4d4;border-radius:9px;background:#fff}
+.chain-detail-card b{display:block;margin-bottom:4px;color:#174ea6;font-size:.86rem}
+.chain-detail-card p{margin:0;color:#334155;font-size:.83rem}
+.chain-tip{margin-top:10px;padding:9px 12px;border-left:5px solid #15803d;background:#f0fdf4;color:#14532d;border-radius:7px;font-size:.85rem;font-weight:700}
+
+/* Glossary Table */
+.glossary-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.88rem;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.glossary-table th,.glossary-table td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line)}
+.glossary-table th{background:#eff6ff;color:#0f2f67;font-weight:900}
+.glossary-table tr:last-child td{border-bottom:0}
+.glossary-table b{color:#1e3a8a}
+
+/* Tour & Toast */
+.tour-overlay{position:fixed;inset:0;background:rgba(2,8,23,.68);z-index:90;display:none}
+.tour-overlay.show{display:block}
+.tour-card{position:fixed;z-index:92;width:min(410px,calc(100vw - 28px));padding:18px;border-radius:16px;background:#fff;color:#172033;box-shadow:0 24px 70px rgba(0,0,0,.35);display:none}
+.tour-card.show{display:block}
+.tour-step{color:#1d4ed8;font-size:.78rem;font-weight:900;letter-spacing:.08em}
+.tour-card h3{margin:4px 0 7px;font-size:1.18rem}
+.tour-card p{margin:0;color:#475569;font-size:.92rem}
+.tour-actions{display:flex;align-items:center;gap:7px;margin-top:16px}
+.tour-actions .btn{padding:8px 11px}
+.tour-progress{margin-right:auto;color:#64748b;font-size:.78rem;font-weight:800}
+.tour-highlight{position:relative;z-index:91!important;box-shadow:0 0 0 5px var(--projection-yellow),0 0 0 9999px rgba(2,8,23,.2)!important;border-radius:14px}
+.toast{position:fixed;right:20px;bottom:20px;z-index:999;max-width:340px;padding:11px 14px;border-radius:10px;background:#172033;color:#fff;box-shadow:var(--shadow);opacity:0;transform:translateY(12px);pointer-events:none;transition:.2s}
+.toast.show{opacity:1;transform:none}
+
+/* Projection & Print */
+body.projection{--primary:#0057d9;--primary-dark:#003f9e;--cyan:#006b80;--success:#08752b;--danger:#c40018;--warning:#8a4300;--ink:#07152b;--muted:#334155;--line:#9aabc0;background:#eef3f8;font-size:18px}
+body.projection .stage,body.projection .subcard,body.projection .chart-card{border-width:2px}
+body.projection .hero{background:#073b86}
+@media print{.step-nav,.tour-overlay,.tour-card,.export-menu{display:none!important}.sim-workspace,.charts,.path-lab,.rag-lab{display:block}.stage{box-shadow:none;border:1px solid #000;page-break-inside:avoid}}
+
 @keyframes edgeFlow{from{stroke-dasharray:4 18;stroke-dashoffset:40}to{stroke-dasharray:4 0;stroke-dashoffset:0}}
 @keyframes pulseHead{50%{box-shadow:0 0 0 10px rgba(34,197,94,.08)}}
-@media(max-width:1100px){.workspace{grid-template-columns:1fr}.sidebar{position:static;grid-template-columns:1.2fr .8fr}.charts{grid-template-columns:1fr}.concept-grid.grid-4{grid-template-columns:repeat(2,1fr)}svg.main-svg{min-height:400px}}
-@media(max-width:900px){.path-lab,.rag-lab,.chain-detail-grid{grid-template-columns:1fr}}
-@media(max-width:760px){.tree-status,.mechanism-grid,.concept-grid,.rag-steps{grid-template-columns:1fr 1fr}}
-@media(max-width:700px){.app{width:min(100% - 18px,1560px);margin-top:9px}.hero{padding:20px}.workspace,.sidebar{display:block}.sidebar>*{margin-bottom:12px}.charts{display:block}.chart-card{margin-bottom:12px;padding:10px}.action-pair,.feature-toolbar,.export-menu,.rag-modes,.path-scenarios,.concept-grid,.concept-grid.grid-4,.rag-steps{grid-template-columns:1fr}.presets{grid-template-columns:1fr 1fr 1fr}svg.main-svg{min-height:330px}.notice{font-size:.87rem}.hero-badges{display:none}}
+
+@media(max-width:1100px){
+  .sim-workspace,.charts,.path-lab,.rag-lab{grid-template-columns:1fr}
+  .concept-grid.grid-4{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:820px){
+  .concept-grid,.traffic-grid,.chain-detail-grid,.rag-steps{grid-template-columns:1fr}
+  .rag-step:not(:last-child):after{display:none}
+  .stage{padding:18px 16px}
+}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}.tree-edge.active,.tree-playhead.show{animation:none}}
 </style>
 </head>
 <body>
 <main class="app">
-<section class="hero">
-  <div class="eyebrow">INTERACTIVE LEARNING TOOL</div>
-  <h1>AI 幻覺機制模擬器</h1>
-  <p>以客觀訓練邊界、預測不確定性（認知不確定性）與抽樣溫度（偶然不確定性），解析生成式 AI 輸出失真與防制作為。</p>
-  <div class="hero-badges"><span class="badge">機率路徑互動</span><span class="badge">雙圖嚴格連動</span><span class="badge">外推認知偏誤視覺化</span><span class="badge">Guardrail拒答示範</span><span class="badge">CSV/報告匯出</span></div>
-</section>
-<div class="notice" role="note"><span class="notice-icon">⚠️</span><div><strong>教學代理模型說明</strong>本工具以「超出客觀真值容許範圍（±2σ_obj）的抽樣值」代理幻覺風險。當進入未知外推區（X &gt; 10）時，模型線性預測會與真實世界轉折產生「認知偏誤（Epistemic Bias）」，用以展示為何缺乏外部知識（RAG）時，單靠調低溫度仍會「精確地出錯」。</div></div>
-<div class="workspace">
-<aside class="sidebar" aria-label="模擬控制區">
-  <section class="card controls" id="tour-controls">
-    <h2 class="section-title">模擬參數 <small>調整或點擊左圖可切換位置</small></h2>
-    <div class="control">
-      <div class="label-row"><label for="pos-input">提問位置 X</label><output id="pos-val" class="value-pill">8.0</output></div>
-      <input type="range" id="pos-input" min="1" max="15" step="0.5" value="8" aria-describedby="pos-help">
-      <div class="range-labels"><span>1 (核心已知)</span><span>訓練邊界 10</span><span>15 (遠距外推)</span></div>
-      <small id="pos-help" class="hint">X &gt; 10 進入未知外推區，模型缺乏直接依據，預測中心開始偏離客觀真值帶（認知不確定性升高）。</small>
-    </div>
-    <div class="control">
-      <div class="label-row"><label for="temp-input">抽樣溫度 Temperature</label><output id="temp-val" class="value-pill">0.7</output></div>
-      <input type="range" id="temp-input" min="0.1" max="2" step="0.1" value="0.7" aria-describedby="temp-help">
-      <div class="range-labels"><span>0.1 (保守收斂)</span><span>0.7 (平衡)</span><span>2.0 (高度發散)</span></div>
-      <small id="temp-help" class="hint">溫度控制抽樣發散度（偶然不確定性）。低溫使輸出集中，但在外推區仍會集中於錯誤位置。</small>
-    </div>
-    <div class="control">
-      <div class="label-row"><label>快速情境切換</label></div>
-      <div class="presets" aria-label="情境預設">
-        <button class="preset" data-x="5" data-t="0.3">已知／低溫保守</button>
-        <button class="preset active" data-x="8" data-t="0.7">已知／標準平衡</button>
-        <button class="preset" data-x="14" data-t="0.25">外推／低溫妄斷</button>
-      </div>
-    </div>
-    <div class="feature-toolbar">
-      <button id="btn-tour" class="btn btn-dark">教學導覽</button>
-      <button id="btn-projection" class="btn btn-warn" aria-pressed="false">投影模式</button>
-    </div>
-    <div class="actions">
-      <button id="btn-run" class="btn btn-primary">產生 1 次回答</button>
-      <button id="btn-run-batch" class="btn btn-secondary">平滑抽樣 20 次 (動畫)</button>
-      <div class="action-pair"><button id="btn-clear" class="btn btn-ghost">清除樣本</button><button id="btn-reset-data" class="btn btn-ghost">重置訓練集</button></div>
-    </div>
-    <div class="export-menu" aria-label="匯出功能">
-      <button id="btn-export-reg" class="btn btn-ghost">匯出左圖 PNG</button>
-      <button id="btn-export-dist" class="btn btn-ghost">匯出右圖 PNG</button>
-      <button id="btn-export-csv" class="btn btn-ghost">匯出抽樣 CSV</button>
-      <button id="btn-export-report" class="btn btn-primary">匯出完整實驗報告</button>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="eyebrow">AI 幻覺白話互動實驗室</div>
+    <h1>為什麼 AI 會「一本正經地胡說八道」？</h1>
+    <p>不用懂高等數學！透過 4 個生活化互動實驗，帶你親眼看見 AI 是怎麼「玩文字接龍」、為什麼遇到沒看過的新規定會「超有自信地瞎掰」，以及怎麼用「開卷看小抄（RAG）」治好它。</p>
+    <div class="hero-badges">
+      <span class="badge">① 文字接龍看原理</span>
+      <span class="badge">② 射標靶看為什麼瞎掰</span>
+      <span class="badge">③ 開卷考看怎麼防呆 (RAG)</span>
+      <span class="badge">④ 日常工作避坑清單</span>
     </div>
   </section>
-  <section class="card summary" id="tour-summary" aria-live="polite">
-    <h2 class="section-title">即時指標統計</h2>
-    <div class="stats">
-      <div class="stat"><div class="stat-label">本次抽樣數</div><div id="stat-total" class="stat-value">0</div></div>
-      <div class="stat"><div class="stat-label">實測離群率 (紅點)</div><div id="stat-ratio" class="stat-value danger">0.0%</div></div>
-      <div class="stat"><div class="stat-label">理論離群機率</div><div id="stat-expected" class="stat-value primary">0.0%</div></div>
-      <div class="stat"><div class="stat-label">目前知識區域</div><div id="stat-region" class="stat-value" style="font-size:1rem">訓練範圍內</div></div>
-      <div class="stat wide"><div class="stat-label">實測離群比例進度</div><div class="progress"><div id="ratio-bar"></div></div><small class="hint">樣本數較少時受隨機波動影響；隨抽樣次數增加，實測率將收斂至理論值（大數法則）。</small></div>
-    </div>
-  </section>
-</aside>
-<section class="content">
-  <div class="charts">
-    <article class="card chart-card" id="tour-reg-chart">
-      <div class="chart-head"><div><div class="chart-title">宏觀預測空間與客觀真值容許帶</div><div class="chart-sub">藍帶為客觀真值容許範圍（±2σ_obj）；藍實線為模型線性外推預測（點擊畫布可直接移動 X）</div></div><span id="zone-tag" class="chart-tag">訓練範圍內</span></div>
-      <svg id="canvas-reg" class="main-svg" viewBox="0 0 680 500" role="img" aria-label="訓練資料與回歸預測圖">
-        <defs>
-          <clipPath id="reg-clip"><rect x="55" y="25" width="590" height="420" rx="4"/></clipPath>
-        </defs>
-        <rect x="55" y="25" width="392" height="420" rx="6" fill="#eff6ff"/><rect x="447" y="25" width="198" height="420" rx="6" fill="#fff7ed"/>
-        <g id="reg-grid"></g>
-        <text x="250" y="47" text-anchor="middle" fill="#1d4ed8" class="region-label">已知訓練資料區（X 1–10）</text>
-        <text x="548" y="47" text-anchor="middle" fill="#b45309" class="region-label">未知外推區（X &gt; 10 具認知偏誤）</text>
-        <path id="prediction-band" fill="rgba(37,99,235,.16)" stroke="#93c5fd" stroke-dasharray="3 3" clip-path="url(#reg-clip)"></path>
-        <path id="true-curve" fill="none" stroke="#0d9488" stroke-width="2" stroke-dasharray="4 4" clip-path="url(#reg-clip)"></path>
-        <line id="reg-line" stroke="#2563eb" stroke-width="3" clip-path="url(#reg-clip)"></line>
-        <line id="aim-line" stroke="#475569" stroke-width="2" stroke-dasharray="5 5"></line>
-        <g id="train-points" clip-path="url(#reg-clip)"></g><g id="reg-generated-points" clip-path="url(#reg-clip)"></g><g id="reg-axis"></g>
-        <text x="350" y="493" text-anchor="middle" class="tick">提問位置 X（可直接於圖上點擊或拖曳）</text><text transform="translate(15 250) rotate(-90)" text-anchor="middle" class="tick">模型輸出 Y</text>
-      </svg>
-      <div class="legend">
-        <div class="legend-item"><span class="dot" style="background:#2563eb"></span>訓練資料與模型預測線</div>
-        <div class="legend-item"><span style="width:16px;height:0;border-top:2px dashed #0d9488"></span>客觀真值中心與容許帶</div>
-        <div class="legend-item"><span class="dot" style="background:#15803d"></span>容許範圍內 (安全)</div>
-        <div class="legend-item"><span class="dot" style="background:#dc2626"></span>統計離群值 (幻覺代理)</div>
-      </div>
-    </article>
-    <article class="card chart-card" id="tour-dist-chart">
-      <div class="chart-head"><div><div class="chart-title">當前位置抽樣分佈與拒絕域</div><div class="chart-sub">紅色尾端面積代表理論離群機率；紅虛線為客觀真值容許上下界</div></div><span class="chart-tag">同一 Y 尺度對齊</span></div>
-      <svg id="canvas-dist" class="main-svg" viewBox="0 0 440 500" role="img" aria-label="當前位置的常態抽樣分佈圖">
-        <defs>
-          <clipPath id="dist-clip"><rect x="50" y="25" width="350" height="420" rx="4"/></clipPath>
-        </defs>
-        <rect id="dist-bg-top" x="50" y="25" width="350" height="0" fill="#fee2e2" opacity=".6"></rect>
-        <rect id="dist-bg-bottom" x="50" y="0" width="350" height="0" fill="#fee2e2" opacity=".6"></rect>
-        <g id="dist-grid"></g>
-        <path id="pdf-tail-top" fill="rgba(220,38,38,.42)" clip-path="url(#dist-clip)"></path>
-        <path id="pdf-tail-bottom" fill="rgba(220,38,38,.42)" clip-path="url(#dist-clip)"></path>
-        <path id="pdf-curve" fill="rgba(37,99,235,.2)" stroke="#2563eb" stroke-width="2.5" clip-path="url(#dist-clip)"></path>
-        <line id="boundary-top" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"></line>
-        <line id="boundary-bottom" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"></line>
-        <line id="mean-line" stroke="#2563eb" stroke-width="2" stroke-dasharray="3 3"></line>
-        <text id="label-top" x="398" y="0" fill="#b91c1c" font-size="11" text-anchor="end" font-weight="700">容許上界 (μ_true + 2σ_obj)</text>
-        <text id="label-bottom" x="398" y="0" fill="#b91c1c" font-size="11" text-anchor="end" font-weight="700">容許下界 (μ_true - 2σ_obj)</text>
-        <text id="label-mean" x="398" y="0" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">模型預測中心 μ_ai</text>
-        <g id="dist-generated-points" clip-path="url(#dist-clip)"></g><g id="dist-axis"></g>
-        <text x="220" y="493" text-anchor="middle" class="tick">相對機率密度 f(Y)</text>
-      </svg>
-      <div class="legend"><div class="legend-item"><span style="width:20px;height:6px;background:#2563eb;border-radius:3px"></span>模型抽樣分佈</div><div class="legend-item"><span style="width:20px;height:6px;background:#dc2626;border-radius:3px"></span>尾端拒絕域 (離群機率)</div></div>
-    </article>
-  </div>
-  <section class="card reliability-wrap" id="tour-reliability">
-  <div class="reliability-title"><div><h2>AI 回答可靠性鏈（端到端架構）</h2><p>可信賴的生成結果並非單靠模型參數，而是由邊界界定、資料治理、檢索、生成約束與人工覆核共同保障。</p></div><span class="chart-tag">端到端控制視角</span></div>
-  <div class="reliability-chain" aria-label="AI 回答可靠性鏈視覺圖">
-    <div class="chain-node active" tabindex="0" role="button" aria-pressed="true" data-chain="0"><span class="chain-num">1</span><b>問題與任務</b><small>確認目的、時效、範圍與邊界限制。</small><div class="chain-risk">風險：問題含糊或缺少必要限制</div></div>
-    <div class="chain-node" tabindex="0" role="button" aria-pressed="false" data-chain="1"><span class="chain-num">2</span><b>可用證據</b><small>辨識權威文件、最新版本與法規效力。</small><div class="chain-risk">風險：資料過期、草案混雜或權威不足</div></div>
-    <div class="chain-node control" tabindex="0" role="button" aria-pressed="false" data-chain="2"><span class="chain-num">3</span><b>檢索與選材</b><small>RAG 精準定位與問題相關的特定段落。</small><div class="chain-risk">風險：檢索斷層或混入題名相近無關文件</div></div>
-    <div class="chain-node" tabindex="0" role="button" aria-pressed="false" data-chain="3"><span class="chain-num">4</span><b>模型生成</b><small>嚴格依檢索脈絡組織文字與回答。</small><div class="chain-risk">風險：過度推論、捏造細節或自信妄斷</div></div>
-    <div class="chain-node check" tabindex="0" role="button" aria-pressed="false" data-chain="4"><span class="chain-num">5</span><b>引用驗證</b><small>確認標註之來源確實直接支持結論。</small><div class="chain-risk">風險：引注文不對題或僅支持部分主張</div></div>
-    <div class="chain-node control" tabindex="0" role="button" aria-pressed="false" data-chain="5"><span class="chain-num">6</span><b>規則與人工覆核</b><small>數字勾稽、法規查核與分級簽核責任。</small><div class="chain-risk">風險：全盤輕信或盲目依賴無人工把關</div></div>
-    <div class="chain-node" tabindex="0" role="button" aria-pressed="false" data-chain="6"><span class="chain-num">7</span><b>使用與回饋</b><small>留存完整提示與生成紀錄，持續改進知識庫。</small><div class="chain-risk">風險：錯誤結果持續擴散且無回饋修訂</div></div>
-  </div>
-  <div id="chain-detail" class="chain-detail" aria-live="polite">
-    <div class="chain-detail-head"><div id="chain-detail-icon" class="chain-detail-icon">1</div><div><h3 id="chain-detail-title">問題與任務</h3><p id="chain-detail-sub" class="chain-detail-sub">先界定 AI 到底要做什麼，以及什麼不應由 AI 自行決定。</p></div></div>
-    <div class="chain-detail-grid"><div class="chain-detail-card"><b>階段目的</b><p id="chain-purpose">釐清任務目的、對象、輸出格式、資料範圍及時效要求。</p></div><div class="chain-detail-card"><b>常見風險</b><p id="chain-risk-detail">問題過度籠統、缺少年度或機關範圍，導致模型自行補齊條件。</p></div><div class="chain-detail-card"><b>檢查問題</b><p id="chain-question">問題是否包含必要的時間、對象、依據、格式與禁止事項？</p></div><div class="chain-detail-card"><b>控制措施</b><p id="chain-control">使用任務範本、必要欄位及範圍限制；資訊不足時要求模型先提問或標示不足。</p></div></div>
-    <div id="chain-example" class="chain-tip">政府業務例：要求摘要預算案時，應指定年度、基金別、資料來源及不可自行推估的欄位。</div>
-  </div>
-</section>
-<section class="card learning-center" id="tour-explain">
-  <div class="learning-head"><h2>AI 核心觀念與落地控制體系</h2><p>由數學原理、不確定性本質、教學簡化、防護四道防線至公務應用，建立體系化理解。</p></div>
-  <div class="tab-list" role="tablist" aria-label="AI 說明主題">
-    <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-path" id="btn-tab-path">1. 機率決策樹比喻</button>
-    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-how" id="btn-tab-how">2. 生成原理與抽樣</button>
-    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-why" id="btn-tab-why">3. 幻覺的成因光譜</button>
-    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-read" id="btn-tab-read">4. 不確定性類型與讀圖</button>
-    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-limit" id="btn-tab-limit">5. 本模型教學簡化與限制</button>
-    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-control" id="btn-tab-control">6. 四道防線與 RAG 實驗室</button>
-    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-gov" id="btn-tab-gov">7. 機關公務實踐路徑</button>
-  </div>
-<div id="tab-path" class="tab-panel active" role="tabpanel" aria-labelledby="btn-tab-path">
-<h3>LLM 生成路徑：一棵「每一步重新展開」的機率樹</h3>
-<p>以下動畫不把 LLM 說成固定決策樹，而是把每一輪的候選 Token 暫時畫成樹。綠色游標代表目前被選中的 Token；選定後，它會併入上下文，下一層候選與機率再從該被選節點重新展開計算。</p>
-<div class="concept-grid grid-4"><div class="concept-card"><b>① 上下文進入模型</b><p>提示詞、系統指令與先前 Token 先轉為向量表示。</p></div><div class="concept-card"><b>② 產生 logits</b><p>模型對詞彙表中的候選 Token 輸出分數，不是直接輸出完整答案。</p></div><div class="concept-card"><b>③ 解碼選取</b><p>Temperature、Top-k、Top-p 等設定改變候選分布與選取範圍。</p></div><div class="concept-card"><b>④ 回饋成新上下文</b><p>被選 Token 接回序列，模型再計算下一步，如此反覆生成。</p></div></div>
-<div class="path-formula">文字 → Token／向量 → Transformer 多層運算 → logits → softmax／解碼 → 選出 Token → 接回上下文</div>
-<div class="path-lab"><section class="path-box"><h4>控制生成條件</h4><div class="path-controls">
-<textarea id="path-prompt" class="path-input" rows="3">請說明大型語言模型為何可能產生幻覺。</textarea>
-<div class="path-scenarios"><button class="path-scenario active" data-path="explain">概念說明</button><button class="path-scenario" data-path="official">公務判斷</button><button class="path-scenario" data-path="creative">創意寫作</button></div>
-<label>Temperature：<output id="path-temp-val">0.7</output></label><input id="path-temp" type="range" min="0.1" max="1.8" value="0.7" step="0.1">
-<label>動畫速度：<output id="tree-speed-val">正常</output></label><input id="tree-speed" type="range" min="350" max="1400" value="750" step="50">
-<div class="tree-toolbar"><button id="btn-tree-play" class="btn btn-primary">▶ 播放逐步生成</button><button id="btn-tree-step" class="btn btn-ghost">下一步</button><button id="btn-tree-reset" class="btn btn-ghost">重設</button><button id="btn-path-greedy" class="btn btn-ghost">最高機率模式：關</button></div></div>
-<div class="tree-status"><div class="tree-stat"><small>目前步驟</small><b id="tree-step-label">尚未開始</b></div><div class="tree-stat"><small>解碼模式</small><b id="tree-mode-label">機率抽樣</b></div><div class="tree-stat"><small>上下文長度</small><b id="tree-context-label">起始提示</b></div><div class="tree-stat"><small>風險提示</small><b id="tree-risk-label">等待生成</b></div></div></section>
-<section class="path-box"><h4>候選 Token 樹狀動畫（路徑依賴展開）</h4><div class="tree-stage"><div id="tree-canvas" class="tree-canvas"><svg id="tree-lines" class="tree-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg><div id="tree-nodes"></div><div id="tree-playhead" class="tree-playhead"></div></div></div><div id="path-output" class="path-output">按「播放逐步生成」觀察路徑。</div><div class="path-history"><b>已選 Token：</b><ol id="path-history-list"></ol></div></section></div>
-<h4 style="margin-top:16px">這個動畫刻意保留的真實機制限制</h4><div class="limit-list"><div class="limit-item"><b>不是傳統決策樹：</b>模型沒有預先存在、可完整列出的固定節點與規則；動畫只把每一步機率最高的少數候選視覺化。</div><div class="limit-item"><b>起點也不是隨機根節點：</b>提示詞與對話內容決定初始隱藏狀態。隨機性主要出現在解碼階段，而且 Temperature 為 0 或採 greedy decoding 時可接近確定性選取。</div><div class="limit-item"><b>內部運算不是樹搜尋：</b>Transformer 透過注意力、前饋網路與多層向量運算產生 logits。圖中的連線代表「生成依賴」，不是神經網路內真正的線路。</div><div class="limit-item"><b>畫面只顯示少數候選：</b>真實詞彙表通常有大量 Token；Top-k／Top-p 會截取候選集合，softmax 機率也不等同於知識正確率或可信度。</div><div class="limit-item"><b>幻覺不是單一錯誤節點：</b>錯誤可能來自訓練資料、提示不足、上下文截斷、解碼設定、檢索失敗或模型把語言流暢性誤當作事實依據。</div></div>
-<div class="mechanism-grid"><div class="mechanism-card"><b>比喻適合說明</b><p>序列生成、條件機率、路徑依賴、抽樣差異，以及早期錯誤如何影響後文。</p></div><div class="mechanism-card"><b>比喻不適合推論</b><p>不能據此認定模型有明確規則、可追溯推理路徑、真正理解語意，或節點機率就是答案正確率。</p></div></div>
-<details class="code-details"><summary>查看本動畫的互動邏輯摘要</summary><pre>1. 依 Temperature 重新縮放候選權重
-2. 以抽樣或最高機率方式選出一個 Token
-3. 從上一層被選中的節點位置展開連線，點亮候選分支與被選路徑
-4. 將選定 Token 加入上下文與歷程
-5. 進入下一層，模擬 autoregressive generation 的路徑依賴</pre></details>
-<div class="scope-note blue"><b>較精確的一句話：</b>LLM 不是在固定決策樹上找答案，而是根據當前上下文，以 Transformer 計算下一個 Token 的分數，再經解碼規則選出一個 Token；每次選擇都會改變下一輪的條件機率。</div></div>
 
-  <div id="tab-how" class="tab-panel" role="tabpanel" aria-labelledby="btn-tab-how">
-    <h3>AI 是接字機率計算，而非確定性資料庫檢索</h3><div class="concept-grid"><div class="concept-card"><b>Token 逐字預測</b><p>語言模型本質是根據前文序列，計算下一個詞元的條件機率分佈 P(w_t | w_1...w_{t-1})。</p></div><div class="concept-card"><b>機率分佈抽樣</b><p>生成文字通常採用 Top-p 或 Temperature 進行非完全確定性解碼，創造自然多樣的表達。</p></div><div class="concept-card"><b>溫度與熵</b><p>溫度越高，分佈越平坦（隨機性高）；溫度越低，分佈越陡峭（文字固定），但低溫絕不等於「事實正確」。</p></div></div><div class="scope-note blue">語言模型的輸出流暢性來自語法結構的機率高低，並不代表內容事實曾經受過客觀邏輯或法規勾稽。</div>
-  </div>
-  <div id="tab-why" class="tab-panel" role="tabpanel" aria-labelledby="btn-tab-why">
-    <h3>幻覺（Hallucination）的多重誘發機制</h3><div class="concept-grid"><div class="concept-card"><b>資料外推 (OOD)</b><p>遇到訓練集未涵蓋的專門法規、單位內規或最新事件時，模型缺乏內生記憶。</p></div><div class="concept-card"><b>自回歸錯誤累積</b><p>前段文字一旦產生微小偏差，自回歸特性會將錯誤視為前提，導致後續整段言之成理地胡扯。</p></div><div class="concept-card"><b>虛構權威引用</b><p>模型在「文獻格式」上的預測機率極高，因此容易合成看似正規卻完全不存在的條號、函釋或期刊。</p></div><div class="concept-card"><b>檢索污染與語意錯配</b><p>RAG 檢索時依據語意向量相似度，若檢索回題名相近但標的不同之規定，模型將產生有依據外觀的錯答。</p></div><div class="concept-card"><b>數值計算薄弱</b><p>自回歸模型對跨段落的四則運算與勾稽天生脆弱，容易出現金額合計數或百分比計算矛盾。</p></div><div class="concept-card"><b>討好型補全 (Sycophancy)</b><p>在提示詞帶有引導性或誘導前提時，模型傾向迎合提問假設而非駁斥前提。</p></div></div>
-  </div>
-  <div id="tab-read" class="tab-panel" role="tabpanel" aria-labelledby="btn-tab-read">
-    <h3>兩種不確定性：認知（Epistemic）與偶然（Aleatoric）</h3><div class="concept-grid"><div class="concept-card"><b>認知不確定性 (外推 X)</b><p>源於「模型知識缺失與外推偏誤」。如同 X &gt; 10，真實規律已發生轉折，模型卻盲目直線外推，此時即使降低溫度，也只是極度自信地給出錯誤答案。必須靠「外掛檢索（RAG）」根治。</p></div><div class="concept-card"><b>偶然不確定性 (溫度 T)</b><p>源於「解碼隨機抽樣」。高溫會使右圖分佈攤平，紅點機率大增。公務正式文件應調低溫度（如 0.0~0.2）以求結果穩定可重現。</p></div><div class="concept-card"><b>客觀容許帶 vs 模型預測線</b><p>左圖藍色半透明帶代表客觀真值容許標準；點落在帶外即為紅點。在 X &gt; 10 外推區，模型藍實線偏離客觀綠虛線中心，導致離群率顯著攀升。</p></div></div><div class="scope-note">請實際操作觀察：點選左側快速情境「外推／低溫妄斷（X=14, T=0.25）」，可看到抽樣值雖然彼此高度集中，但因為整體預測偏離客觀真值，導致絕大多數點都落在紅線拒絕域內，這正是「精確地出錯（Confidently Wrong）」。</div>
-  </div>
-  <div id="tab-limit" class="tab-panel" role="tabpanel" aria-labelledby="btn-tab-limit">
-    <h3>教學模型之簡化與認知界限</h3><ul><li><strong>高維 vs 一維：</strong> 真實 LLM 參數動輒數十億且處於超高維空間；本工具簡化為 2D 回歸與外推偏誤以利直觀可視化。</li><li><strong>連續 vs 離散：</strong> 真實詞元（Tokens）是離散的字典機率抽樣；此處以連續常態分佈作為代理。</li><li><strong>不可見的訓練邊界：</strong> 實務中大模型的「訓練邊界」隱匿在龐大語料中，使用者難以如同圖中 X=10 般一眼辨識是否外推。</li><li><strong>統計離群 ≠ 惡意幻覺：</strong> 統計學離群值僅為機率極值；實際業務中，有時看似保守合理的文字反而含有重大隱蔽事實錯誤。</li></ul><div class="scope-note">本模擬器用於培養同仁「對生成結果抱持健康懷疑、重視邊界防禦」的心態，非用於測量特定商用模型之客觀錯誤率。</div>
-  </div>
-  <div id="tab-control" class="tab-panel" role="tabpanel" aria-labelledby="btn-tab-control">
-    <h3>防範幻覺的「四道安全防線」架構</h3><div class="concept-grid"><div class="concept-card"><b>第 1 道：邊界約束 (Guardrail)</b><p>在 Prompt 中強制要求：僅依據附件回答，未提及之事項必須明確回答「無相關資料」，嚴禁推論。</p></div><div class="concept-card"><b>第 2 道：精準錨定 (Grounding / RAG)</b><p>不依賴模型內部記憶，先檢索機關內部現行規定，將權威文本作為上下文提供給模型。</p></div><div class="concept-card"><b>第 3 道：引用交叉比對</b><p>模型提出結論時必須標註精確條號段落；系統或使用者反向驗證該段落是否確實支持主張。</p></div><div class="concept-card"><b>第 4 道：規則計算與分級簽核</b><p>數值運算交由 Python/Excel 程式執行，不讓 LLM 做心算；公務公文產出仍由承辦人員負最終責任。</p></div><div class="concept-card"><b>少樣本範例 (Few-shot)</b><p>在提問中提供標準範例，約束輸出之欄位格式、文句結構與專業用語風格。</p></div><div class="concept-card"><b>結構化輸出 (JSON/表格)</b><p>要求以標準 Schema 輸出，便於銜接後端檢核程式自動檢查必填項與數值合理性。</p></div></div>
-    <h4>RAG 與防護機制互動實驗室</h4>
-    <div class="rag-steps" aria-label="RAG 示範操作步驟">
-      <div class="rag-step"><span class="rag-step-num">步驟 1</span><b>閱讀問題與文件</b><small>確認問題核心為「120 萬採購預算是否超過公告金額門檻」。</small></div>
-      <div class="rag-step"><span class="rag-step-num">步驟 2</span><b>切換四種情境</b><small>比較：無檢索、正確檢索、錯誤引用、以及「安全拒答 (Guardrail)」。</small></div>
-      <div class="rag-step"><span class="rag-step-num">步驟 3</span><b>核對檢索與引用</b><small>觀察文件框選狀態與條文內容，確認引用是否真正具備證明力。</small></div>
-      <div class="rag-step"><span class="rag-step-num">步驟 4</span><b>評估系統成熟度</b><small>體會：高成熟度 AI 系統最關鍵的能力是「懂得在無依據時說不知道」。</small></div>
+  <!-- STICKY NAVIGATION -->
+  <nav class="step-nav" aria-label="四站式學習導覽">
+    <div class="step-links">
+      <a class="step-link" href="#stage-1"><span class="num">1</span>AI 怎麼說話？（文字接龍）</a>
+      <a class="step-link" href="#stage-2"><span class="num">2</span>為什麼會瞎掰？（標靶實驗）</a>
+      <a class="step-link" href="#stage-3"><span class="num">3</span>怎麼治好它？（開卷考 RAG）</a>
+      <a class="step-link" href="#stage-4"><span class="num">4</span>日常防呆指南（實戰清單）</a>
+      <a class="step-link" href="#glossary-section"><span class="num">📖</span>黑話翻譯字典</a>
     </div>
-    <details class="scenario-guide" open><summary>四種情境操作與對照重點</summary><div class="scenario-guide-body"><ol><li><strong>無檢索：</strong> 模型在無資料支持下，自行腦補「一般常見門檻」，語氣肯定但具高度風險。</li><li><strong>正確檢索：</strong> 檢索到文件 A 第 8 條（公告金額 100 萬），完成「120萬 &gt; 100萬」之正確比較，有憑有據。</li><li><strong>錯誤引用（高隱蔽幻覺）：</strong> 系統外表附有引用標籤，但檢索到的是「文件 B 零用金規定」，引注文不對題。</li><li><strong>安全拒答（Guardrail 典範）：</strong> 當資料庫缺乏對應規範時，模型明確啟動防護宣告資料不足，拒絕瞎猜。</li></ol></div></details>
+    <div class="nav-tools">
+      <button id="btn-tour" class="btn btn-dark">🧭 3 分鐘新手導覽</button>
+      <button id="btn-projection" class="btn btn-warn" aria-pressed="false">📽️ 投影大字模式</button>
+    </div>
+  </nav>
+
+  <!-- =========================================================
+       STAGE 1: 文字接龍模擬器 (How AI Speaks)
+       ========================================================= -->
+  <section class="stage" id="stage-1">
+    <div class="stage-header">
+      <div>
+        <span class="stage-badge">第 1 站｜先破除迷思</span>
+        <h2>AI 不是在「查標準答案」，而是在玩「超級文字接龍」 <span class="jargon-tag">對應術語：自回歸 Token 預測</span></h2>
+        <p>很多人以為問 AI 問題，它會去資料庫裡翻出正確解答。其實 AI 比較像「手機鍵盤的聯想字威力加強版」——它每次只做一件事：<b>根據前面已經寫出來的字，猜下一個字接什麼最順口！</b></p>
+      </div>
+    </div>
+
+    <div class="concept-grid grid-4">
+      <div class="concept-card">
+        <b>① 拆成字詞積木</b>
+        <p>先把你問的問題拆成一個個小積木（稱為 Token），讀進腦袋裡。</p>
+      </div>
+      <div class="concept-card">
+        <b>② 幫候選字打分數</b>
+        <p>AI 不會一次想好整篇答案，而是先列出「下一格最可能出現的幾個詞」並算機率。</p>
+      </div>
+      <div class="concept-card">
+        <b>③ 擲骰子挑下一個詞</b>
+        <p>根據你設定的「自由發揮度（溫度）」，從候選詞裡挑出一個詞寫下來。</p>
+      </div>
+      <div class="concept-card">
+        <b>④ 順著剛寫的字繼續接</b>
+        <p>剛寫下的詞會變成題目的一部分！所以<b>只要中間一步猜歪，後面就會順著歪話繼續圓謊</b>。</p>
+      </div>
+    </div>
+
+    <div class="path-formula">
+      你的提問 → 拆成字詞積木 (Token) → 算出下一格誰最順口 → 挑出一個詞 → 接回去繼續猜下一格（無限循環）
+    </div>
+
+    <div class="path-lab" id="tour-explain">
+      <section class="path-box">
+        <h3>🎮 動手玩：文字接龍控制器</h3>
+        <div class="path-controls">
+          <label for="path-prompt"><b>目前問題：</b></label>
+          <textarea id="path-prompt" class="path-input" rows="2">請說明大型語言模型為何可能產生幻覺。</textarea>
+          <div class="path-scenarios" aria-label="接龍情境切換">
+            <button class="path-scenario active" data-path="explain">日常科普問答</button>
+            <button class="path-scenario" data-path="official">工作規定判斷</button>
+            <button class="path-scenario" data-path="creative">寫創意故事</button>
+          </div>
+          <label for="path-temp"><b>自由發揮度（溫度 Temperature）：<output id="path-temp-val">0.7</output></b> <small style="color:var(--muted)">（越高越愛挑冷門詞）</small></label>
+          <input id="path-temp" type="range" min="0.1" max="1.8" value="0.7" step="0.1">
+          <label for="tree-speed"><b>接龍動畫速度：<output id="tree-speed-val">正常</output></b></label>
+          <input id="tree-speed" type="range" min="350" max="1400" value="750" step="50">
+          <div class="tree-toolbar">
+            <button id="btn-tree-play" class="btn btn-primary">▶ 播放文字接龍</button>
+            <button id="btn-tree-step" class="btn btn-ghost">單步往下接</button>
+            <button id="btn-tree-reset" class="btn btn-ghost">重來</button>
+            <button id="btn-path-greedy" class="btn btn-ghost">只選第一名：關</button>
+          </div>
+        </div>
+        <div class="tree-status">
+          <div class="tree-stat"><small>目前接龍進度</small><b id="tree-step-label">尚未開始</b></div>
+          <div class="tree-stat"><small>選詞方式</small><b id="tree-mode-label">依機率擲骰子</b></div>
+          <div class="tree-stat"><small>已累積字數</small><b id="tree-context-label">起始題目</b></div>
+          <div class="tree-stat"><small>歪樓風險雷達</small><b id="tree-risk-label">等待開始</b></div>
+        </div>
+      </section>
+
+      <section class="path-box">
+        <h3>🌳 即時接龍畫面（橘紅框＝聽起來很順但偏離事實的選項）</h3>
+        <div class="tree-stage">
+          <div id="tree-canvas" class="tree-canvas">
+            <svg id="tree-lines" class="tree-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <div id="tree-nodes"></div>
+            <div id="tree-playhead" class="tree-playhead"></div>
+          </div>
+        </div>
+        <div id="path-output" class="path-output">點擊左側「▶ 播放文字接龍」，觀察 AI 如何一步步把句子接出來。</div>
+        <div class="path-history"><b>剛剛接出來的句子歷程：</b><ol id="path-history-list"></ol></div>
+      </section>
+    </div>
+
+    <div class="scope-note blue">
+      <b>💡 第 1 站重點筆記：</b>因為 AI 關注的是「這樣接語氣順不順」，而不是「這句話在現實世界是不是真的」，所以它天生就很擅長寫出<b>「文筆超流暢、看起來超專業，但內容其實是湊出來的假話」</b>！
+    </div>
+  </section>
+
+  <!-- =========================================================
+       STAGE 2: 射標靶與考試模擬器 (Why AI Hallucinates)
+       ========================================================= -->
+  <section class="stage" id="stage-2">
+    <div class="stage-header">
+      <div>
+        <span class="stage-badge">第 2 站｜核心實驗室</span>
+        <h2>為什麼 AI 會「超有自信地答錯」？考古題 vs. 超綱題標靶實驗 <span class="jargon-tag">對應術語：認知外推偏誤 &amp; 抽樣溫度</span></h2>
+        <p>想像 AI 是一個去考試的學生。決定它會不會亂掰（掉出綠色好球帶變成<b>紅點</b>）有兩個關鍵開關：<b>① 這題它以前有沒有讀過（考古題 vs. 超綱題）</b>，以及 <b>② 它回答時有多愛自由發揮（溫度高低）</b>。</p>
+      </div>
+    </div>
+
+    <div class="sim-workspace">
+      <!-- Left Controls -->
+      <aside class="sim-sidebar" aria-label="標靶實驗控制區">
+        <section class="subcard" id="tour-controls">
+          <h3 class="section-title">🎛️ 調整兩個開關 <small>也可直接點擊或拖曳左圖</small></h3>
+
+          <div class="control">
+            <div class="label-row">
+              <label for="pos-input">① 問題熟不熟（位置 X）</label>
+              <output id="pos-val" class="value-pill">8.0</output>
+            </div>
+            <input type="range" id="pos-input" min="1" max="15" step="0.5" value="8" aria-describedby="pos-help">
+            <div class="range-labels">
+              <span>1 (超熟考古題)</span>
+              <span>課本邊界 10</span>
+              <span>15 (沒讀過的超綱題)</span>
+            </div>
+            <small id="pos-help" class="hint">
+              <b>1~10 是 AI 讀過的課本範圍</b>；<b>超過 10 就是沒讀過的「超綱題」</b>（例如昨天剛改的內規）。這時真實答案已經轉彎（綠虛線），AI 卻還照著舊印象直線硬猜（藍實線）！
+            </small>
+          </div>
+
+          <div class="control">
+            <div class="label-row">
+              <label for="temp-input">② 自由發揮度（溫度）</label>
+              <output id="temp-val" class="value-pill">0.7</output>
+            </div>
+            <input type="range" id="temp-input" min="0.1" max="2" step="0.1" value="0.7" aria-describedby="temp-help">
+            <div class="range-labels">
+              <span>0.1 (乖乖牌保守)</span>
+              <span>0.7 (自然聊天)</span>
+              <span>2.0 (天馬行空)</span>
+            </div>
+            <small id="temp-help" class="hint">
+              溫度越低，AI 越保守固定；溫度越高，AI 越愛即興亂聊。<b>但請注意：遇到沒讀過的超綱題時，就算調成最乖的 0.1，也只是「每次都篤定猜同一個錯答案」！</b>
+            </small>
+          </div>
+
+          <div class="control">
+            <div class="label-row"><label>⚡ 一鍵體驗 3 種經典狀況</label></div>
+            <div class="presets" aria-label="情境預設">
+              <button class="preset" data-x="5" data-t="0.3">
+                <span>🟢 問考古題 ＋ 乖乖牌模式</span>
+                <span class="tag-mini">最穩最準</span>
+              </button>
+              <button class="preset active" data-x="8" data-t="0.7">
+                <span>🟡 問考古題 ＋ 一般聊天模式</span>
+                <span class="tag-mini">日常預設</span>
+              </button>
+              <button class="preset" data-x="14" data-t="0.2">
+                <span>🔴 問超綱題 ＋ 乖乖牌模式</span>
+                <span class="tag-mini">超有自信地答錯！</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="btn-run" class="btn btn-primary">🎯 讓 AI 回答 1 次（射 1 發）</button>
+            <button id="btn-run-batch" class="btn btn-secondary">⚡ 連續回答 20 次（看趨勢動畫）</button>
+            <div class="action-pair">
+              <button id="btn-clear" class="btn btn-ghost">清除圖上圓點</button>
+              <button id="btn-reset-data" class="btn btn-ghost">換一組課本資料</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="subcard" id="tour-summary" aria-live="polite">
+          <h3 class="section-title">📊 即時成績單（好球 vs. 瞎掰）</h3>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">累積回答次數</div>
+              <div id="stat-total" class="stat-value">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">實際瞎掰率 (紅點)</div>
+              <div id="stat-ratio" class="stat-value danger">0.0%</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">理論瞎掰風險</div>
+              <div id="stat-expected" class="stat-value primary">0.0%</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">目前題目範圍</div>
+              <div id="stat-region" class="stat-value" style="font-size:.98rem">課本考古題區</div>
+            </div>
+            <div class="stat wide">
+              <div class="stat-label">脫靶瞎掰比例尺</div>
+              <div class="progress"><div id="ratio-bar"></div></div>
+              <div id="live-diagnosis" class="diagnosis-box">
+                💡 白話診斷：目前題目在課本範圍內，AI 心裡有底，偶爾的誤差主要來自自由發揮度。
+              </div>
+            </div>
+          </div>
+
+          <div class="export-menu" aria-label="匯出功能">
+            <button id="btn-export-reg" class="btn btn-ghost">下載左圖 PNG</button>
+            <button id="btn-export-dist" class="btn btn-ghost">下載右圖 PNG</button>
+            <button id="btn-export-csv" class="btn btn-ghost">匯出實驗 CSV</button>
+            <button id="btn-export-report" class="btn btn-primary">📄 下載白話實驗報告</button>
+          </div>
+        </section>
+      </aside>
+
+      <!-- Right Charts -->
+      <div class="charts">
+        <article class="chart-card" id="tour-reg-chart">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">左圖｜全貌地圖：課本考古題 vs. 課外超綱盲猜區</div>
+              <div class="chart-sub">藍色寬帶＝<b>正確答案的安全好球帶</b>；藍實線＝<b>AI 憑舊印象硬猜的路線</b>（可直接點擊或左右拖曳虛線！）</div>
+            </div>
+            <span id="zone-tag" class="chart-tag">課本考古題區</span>
+          </div>
+          <svg id="canvas-reg" class="main-svg" viewBox="0 0 680 500" role="img" aria-label="考古題與超綱題預測全貌圖">
+            <defs>
+              <clipPath id="reg-clip"><rect x="55" y="25" width="590" height="420" rx="4"/></clipPath>
+            </defs>
+            <rect x="55" y="25" width="392" height="420" rx="6" fill="#eff6ff"/>
+            <rect x="447" y="25" width="198" height="420" rx="6" fill="#fff7ed"/>
+            <g id="reg-grid"></g>
+            <text x="250" y="47" text-anchor="middle" fill="#1d4ed8" class="region-label">📘 課本考古題區（X 1–10：AI 讀過）</text>
+            <text x="546" y="47" text-anchor="middle" fill="#b45309" class="region-label">⚠️ 課外超綱盲猜區（X &gt; 10：AI 沒讀過）</text>
+            <path id="prediction-band" fill="rgba(37,99,235,.16)" stroke="#93c5fd" stroke-dasharray="3 3" clip-path="url(#reg-clip)"></path>
+            <path id="true-curve" fill="none" stroke="#0d9488" stroke-width="2.5" stroke-dasharray="5 4" clip-path="url(#reg-clip)"></path>
+            <line id="reg-line" stroke="#2563eb" stroke-width="3" clip-path="url(#reg-clip)"></line>
+            <line id="aim-line" stroke="#475569" stroke-width="2" stroke-dasharray="5 5"></line>
+            <g id="train-points" clip-path="url(#reg-clip)"></g>
+            <g id="reg-generated-points" clip-path="url(#reg-clip)"></g>
+            <g id="reg-axis"></g>
+            <text x="350" y="493" text-anchor="middle" class="tick">問題位置 X（1~10 讀過 ／ 11~15 沒讀過，可直接點擊拖曳）</text>
+            <text transform="translate(15 250) rotate(-90)" text-anchor="middle" class="tick">AI 給出的答案數值 Y</text>
+          </svg>
+          <div class="legend">
+            <div class="legend-item"><span class="dot" style="background:#2563eb"></span>AI 讀過的課本例題 &amp; 猜測路線</div>
+            <div class="legend-item"><span style="width:16px;height:0;border-top:2.5px dashed #0d9488"></span>真實標準答案與「安全好球帶」</div>
+            <div class="legend-item"><span class="dot" style="background:#15803d"></span>綠點＝答對（落在好球帶內）</div>
+            <div class="legend-item"><span class="dot" style="background:#dc2626"></span>紅點＝瞎掰幻覺（脫靶出界）</div>
+          </div>
+        </article>
+
+        <article class="chart-card" id="tour-dist-chart">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">右圖｜放大鏡：在目前這題，AI 答案會掉在哪裡？</div>
+              <div class="chart-sub">山峰越窄代表 AI 講話越篤定；<b>塗成紅色的山峰尾巴＝會脫靶瞎掰的機率</b></div>
+            </div>
+            <span class="chart-tag">高度與左圖對齊</span>
+          </div>
+          <svg id="canvas-dist" class="main-svg" viewBox="0 0 440 500" role="img" aria-label="當前題目的答案落點分佈放大圖">
+            <defs>
+              <clipPath id="dist-clip"><rect x="50" y="25" width="350" height="420" rx="4"/></clipPath>
+            </defs>
+            <rect id="dist-bg-top" x="50" y="25" width="350" height="0" fill="#fee2e2" opacity=".6"></rect>
+            <rect id="dist-bg-bottom" x="50" y="0" width="350" height="0" fill="#fee2e2" opacity=".6"></rect>
+            <g id="dist-grid"></g>
+            <path id="pdf-tail-top" fill="rgba(220,38,38,.42)" clip-path="url(#dist-clip)"></path>
+            <path id="pdf-tail-bottom" fill="rgba(220,38,38,.42)" clip-path="url(#dist-clip)"></path>
+            <path id="pdf-curve" fill="rgba(37,99,235,.2)" stroke="#2563eb" stroke-width="2.5" clip-path="url(#dist-clip)"></path>
+            <line id="boundary-top" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"></line>
+            <line id="boundary-bottom" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"></line>
+            <line id="mean-line" stroke="#2563eb" stroke-width="2" stroke-dasharray="3 3"></line>
+            <text id="label-top" x="398" y="0" fill="#b91c1c" font-size="11" text-anchor="end" font-weight="700">安全好球帶上界（超過算瞎掰）</text>
+            <text id="label-bottom" x="398" y="0" fill="#b91c1c" font-size="11" text-anchor="end" font-weight="700">安全好球帶下界（低於算瞎掰）</text>
+            <text id="label-mean" x="398" y="0" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">AI 自己以為的答案中心</text>
+            <g id="dist-generated-points" clip-path="url(#dist-clip)"></g>
+            <g id="dist-axis"></g>
+            <text x="220" y="493" text-anchor="middle" class="tick">答案出現的集中程度（山峰越凸代表越常猜這裡）</text>
+          </svg>
+          <div class="legend">
+            <div class="legend-item"><span style="width:20px;height:6px;background:#2563eb;border-radius:3px"></span>AI 猜測分佈山峰</div>
+            <div class="legend-item"><span style="width:20px;height:6px;background:#dc2626;border-radius:3px"></span>超出好球帶的瞎掰風險區</div>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="scope-note">
+      <b>🎯 必做實驗（體驗什麼叫「超有自信地答錯」）：</b>請點一下左邊第 3 個按鈕<b>「🔴 問超綱題 ＋ 乖乖牌模式」</b>，然後按<b>「⚡ 連續回答 20 次」</b>。你會發現：雖然點點全部擠在一起（代表 AI 每次講法都超一致、語氣超篤定），但因為它根本沒讀過 X=14 的新變化，所以<b>幾乎 100% 都是紅點（全軍覆沒）</b>！這證明了：<b>遇到 AI 沒讀過的內部規定或最新消息，光靠「把溫度調低」是救不了它的！</b>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       STAGE 3: 開卷考實驗室 RAG & Guardrail (How to Fix It)
+       ========================================================= -->
+  <section class="stage" id="stage-3">
+    <div class="stage-header">
+      <div>
+        <span class="stage-badge">第 3 站｜怎麼治好它？</span>
+        <h2>別讓 AI 憑印象閉卷瞎猜！改考「翻小抄開卷考（RAG）」與「安全煞車」 <span class="jargon-tag">對應術語：RAG 檢索增強生成 &amp; Guardrail</span></h2>
+        <p>既然第 2 站告訴我們「問到沒讀過的規定時，AI 會自信瞎掰」，那解方其實很簡單：<b>不要考它背誦！在它回答前，先幫它把「最新規定（小抄）」翻開放在桌上，規定它只能照著小抄寫，找不到就老實說不知道。</b></p>
+      </div>
+    </div>
+
+    <div class="rag-steps" aria-label="開卷考防呆四步驟">
+      <div class="rag-step">
+        <span class="rag-step-num">第 1 步</span>
+        <b>先翻桌上小抄 (RAG)</b>
+        <small>不靠 AI 腦中舊印象，先去機關最新的規定檔案庫裡找出那一段條文。</small>
+      </div>
+      <div class="rag-step">
+        <span class="rag-step-num">第 2 步</span>
+        <b>規定照著小抄寫</b>
+        <small>在指令裡嚴格限制：「只能根據附上的條文回答，不准自己腦補推論」。</small>
+      </div>
+      <div class="rag-step">
+        <span class="rag-step-num">第 3 步</span>
+        <b>檢查出處有沒有張冠李戴</b>
+        <small>AI 附上「出處：文件 B」不代表就對！必須點開確認文件 B 真的在講這件事。</small>
+      </div>
+      <div class="rag-step">
+        <span class="rag-step-num">第 4 步</span>
+        <b>找不到就說「不知道」</b>
+        <small>真正成熟的 AI 系統，在翻不到規定時會踩下「安全煞車」，拒絕亂猜。</small>
+      </div>
+    </div>
+
     <div class="rag-lab" id="tour-rag">
-      <div class="rag-box"><h4>資料庫與檢索情境設定</h4><label for="rag-question"><b>提問內容</b></label><textarea id="rag-question" class="rag-question">某項設備採購預算為新臺幣 120 萬元，是否已超過本示範資料所列的公告金額門檻？</textarea><div id="rag-mode-help" class="rag-mode-help">操作提示：點選不同情境，觀察回答模式與驗證結果。</div><div class="rag-modes" aria-label="RAG 示範模式"><button class="rag-mode active" data-mode="none">無檢索</button><button class="rag-mode" data-mode="good">正確檢索</button><button class="rag-mode" data-mode="bad">錯誤引用</button><button class="rag-mode" data-mode="refusal">安全拒答</button></div><div class="doc-list"><div class="doc" id="rag-doc-a"><strong>文件 A｜示範採購作業規範 2026</strong><br>第 8 條：本教學資料設定之公告金額門檻為新臺幣 100 萬元。</div><div class="doc" id="rag-doc-b"><strong>文件 B｜示範零用金管理要點 2025</strong><br>第 3 點：零用金單筆支出以新臺幣 1 萬元為限。</div><div class="doc" id="rag-doc-c"><strong>文件 C｜示範差旅費說明 2024</strong><br>住宿費與交通費應依核定標準核實報支。</div></div><p class="rag-help">以上均為本教學工具之合成情境資料，並非現行政府採購法法定門檻數額。</p></div>
-      <div class="rag-box"><h4>生成結果與驗證狀態</h4><div class="rag-flow"><span class="flow-chip on">提問</span><span class="flow-arrow">→</span><span id="flow-retrieve" class="flow-chip">檢索</span><span class="flow-arrow">→</span><span class="flow-chip on">生成</span><span class="flow-arrow">→</span><span id="flow-cite" class="flow-chip">引用標註</span><span class="flow-arrow">→</span><span id="flow-verify" class="flow-chip">防護檢核</span></div><div id="rag-answer-card" class="answer-card warn"><div class="answer-label">AI 輸出草案</div><div id="rag-answer" class="answer-text"></div><div id="rag-citations"></div></div><div id="rag-verification" class="verification warn"></div><div class="rag-score"><div class="score"><span>檢索相關性</span><b id="score-relevance">無</b></div><div class="score"><span>引用支持度</span><b id="score-support">無</b></div><div class="score"><span>可採信度判定</span><b id="score-trust">不可採信</b></div></div><div class="rag-observe"><b>本情境觀察重點</b><ul><li id="rag-observe-1"></li><li id="rag-observe-2"></li><li id="rag-observe-3"></li></ul></div><button id="btn-rag-run" class="btn btn-primary" style="width:100%;margin-top:10px">重新整理情境展示</button></div>
+      <div class="rag-box">
+        <h3>📚 桌上準備的資料與 4 種考試模式</h3>
+        <label for="rag-question"><b>你問 AI 的問題：</b></label>
+        <textarea id="rag-question" class="rag-question">某項設備採購預算為新臺幣 120 萬元，是否已超過本示範資料所列的公告金額門檻？</textarea>
+        <div id="rag-mode-help" class="rag-mode-help">請點擊下方 4 種模式，比較 AI 在「閉卷硬猜」與「開卷看小抄」時的巨大差異：</div>
+
+        <div class="rag-modes" aria-label="RAG 示範模式">
+          <button class="rag-mode active" data-mode="none">
+            ❌ 1. 閉卷硬猜（無 RAG）
+            <small>沒給小抄，憑印象亂湊</small>
+          </button>
+          <button class="rag-mode" data-mode="good">
+            ✅ 2. 開卷找對頁（正確 RAG）
+            <small>翻對採購規範，有憑有據</small>
+          </button>
+          <button class="rag-mode" data-mode="bad">
+            ⚠️ 3. 拿錯小抄硬湊（假引注）
+            <small>翻到零用金規定卻硬回答</small>
+          </button>
+          <button class="rag-mode" data-mode="refusal">
+            🛡️ 4. 誠實說不知道（安全煞車）
+            <small>查無對應資料時主動拒答</small>
+          </button>
+        </div>
+
+        <div class="doc-list">
+          <div class="doc" id="rag-doc-a">
+            <strong>📄 小抄 A｜示範採購作業規範（2026 最新版）</strong><br>
+            第 8 條：本教學資料設定之「公告金額門檻」為新臺幣 100 萬元。
+          </div>
+          <div class="doc" id="rag-doc-b">
+            <strong>📄 小抄 B｜示範零用金管理要點（2025 版）</strong><br>
+            第 3 點：日常零用金單筆支出以新臺幣 1 萬元為限。
+          </div>
+          <div class="doc" id="rag-doc-c">
+            <strong>📄 小抄 C｜示範出差旅費報支說明（2024 版）</strong><br>
+            住宿費與交通費應依核定標準憑據核實報支。
+          </div>
+        </div>
+      </div>
+
+      <div class="rag-box">
+        <h3>🤖 AI 的回答與系統把關結果</h3>
+        <div class="rag-flow">
+          <span class="flow-chip on">收到提問</span><span class="flow-arrow">→</span>
+          <span id="flow-retrieve" class="flow-chip">翻找小抄 (RAG)</span><span class="flow-arrow">→</span>
+          <span class="flow-chip on">AI 寫草稿</span><span class="flow-arrow">→</span>
+          <span id="flow-cite" class="flow-chip">標註第幾條</span><span class="flow-arrow">→</span>
+          <span id="flow-verify" class="flow-chip">安全把關檢查</span>
+        </div>
+
+        <div id="rag-answer-card" class="answer-card warn">
+          <div class="answer-label">AI 回答內容</div>
+          <div id="rag-answer" class="answer-text"></div>
+          <div id="rag-citations"></div>
+        </div>
+
+        <div id="rag-verification" class="verification warn"></div>
+
+        <div class="rag-score">
+          <div class="score"><span>小抄有沒有找對？</span><b id="score-relevance">沒找小抄</b></div>
+          <div class="score"><span>條文能不能支持答案？</span><b id="score-support">毫無根據</b></div>
+          <div class="score"><span>這份回答能不能用？</span><b id="score-trust">危險不可信</b></div>
+        </div>
+
+        <div class="rag-observe">
+          <b>👀 這個模式告訴我們什麼？</b>
+          <ul>
+            <li id="rag-observe-1"></li>
+            <li id="rag-observe-2"></li>
+            <li id="rag-observe-3"></li>
+          </ul>
+        </div>
+        <button id="btn-rag-run" class="btn btn-primary" style="width:100%;margin-top:10px">🔄 重新測試這個情境</button>
+      </div>
     </div>
-  </div>
-  <div id="tab-gov" class="tab-panel" role="tabpanel" aria-labelledby="btn-tab-gov">
-    <h3>機關公務推動 Generative AI 實踐路徑</h3><div class="concept-grid"><div class="concept-card"><b>低風險：文句轉換與格式化</b><p>會議發言摘要、公文草擬修辭、Word 轉 JSON、表格格式轉換。效益立竿見影且無重大法律權責外溢風險。</p></div><div class="concept-card"><b>中風險：跨案彙整與比對</b><p>法案修正草案對照、招標規格初篩、計畫提案重點比較。應落實雙人抽查與引用比對機制。</p></div><div class="concept-card"><b>高風險：法規裁處與預算核定</b><p>法規適用解釋、預算勾稽、補助資格判定。嚴禁直接採用 AI 輸出，必須全數由專業同仁逐筆查核簽章。</p></div><div class="concept-card"><b>「以表製表」資料流串聯</b><p>將舊系統雜亂之報表透過 LLM 轉成乾淨結構化資料（CSV/JSON），作為機關新分析儀表板的輸入來源。</p></div><div class="concept-card"><b>「AI 產製確定性工具」</b><p>讓 AI 撰寫 Python 腳本、SQL 語法或 Excel VBA；執行時使用該確定性程式進行嚴密計算，避開 LLM 心算風險。</p></div><div class="concept-card"><b>系統膠水層 (System Glue)</b><p>充當跨系統介面轉換工具，減少基層同仁重複人工剪貼騰寫，實現公務作業輕量自動化。</p></div></div><div class="scope-note blue">公務同仁使用生成式 AI 輔助作業，應遵循行政院相關指引，恪守資通安全與機密維護，不得輸入機密公務個資，並由同仁負公文與行政判斷之最終責任。</div>
-  </div>
-</section>
-</section>
-</div>
+  </section>
+
+  <!-- =========================================================
+       STAGE 4: 日常與工作防呆指南 (Practical Guide & 7-Step Chain)
+       ========================================================= -->
+  <section class="stage" id="stage-4">
+    <div class="stage-header">
+      <div>
+        <span class="stage-badge">第 4 站｜日常與工作防呆指南</span>
+        <h2>一眼識破 AI 的 6 種常見破綻 ＆ 安心使用的「紅綠燈法則」</h2>
+        <p>了解原理之後，日常工作與生活中要怎麼跟 AI 配合才不會踩雷？把這張防呆指南存起來就對了！</p>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">🕵️‍♂️ 一、AI 最愛犯的 6 種「瞎掰破綻」圖鑑</h3>
+    <div class="concept-grid">
+      <div class="concept-card">
+        <b>1. 沒讀過硬猜（超綱盲猜）</b>
+        <p>問它公司昨天才改的請假規定或冷門內規，它沒讀過卻照著「一般常識」編出一套規定。</p>
+      </div>
+      <div class="concept-card">
+        <b>2. 順著錯話圓謊（滾雪球）</b>
+        <p>開頭第一句不小心講錯一個數字，後面的段落為了自圓其說，整篇順著錯的前提繼續編故事。</p>
+      </div>
+      <div class="concept-card">
+        <b>3. 自己發明法條與書名</b>
+        <p>因為它很懂「法條跟論文長什麼樣子」，所以常湊出格式超逼真、但現實中根本不存在的條號或文獻。</p>
+      </div>
+      <div class="concept-card">
+        <b>4. 張冠李戴（拿錯小抄）</b>
+        <p>搜尋資料時只看關鍵字很像，把「零用金規定」拿來回答「大型採購案」，還附上出處讓你卸下心防。</p>
+      </div>
+      <div class="concept-card">
+        <b>5. 算數心算很差</b>
+        <p>AI 是文字接龍高手，不是計算機！長篇文章裡的金額加總或百分比常算錯。<br>👉 <b>解方：算數請交給 Excel，或叫 AI 寫公式算！</b></p>
+      </div>
+      <div class="concept-card">
+        <b>6. 太愛討好你（順著你講）</b>
+        <p>如果你帶著既定立場問「為什麼這樣做不違法？」，AI 很容易為了迎合你而硬找理由，不敢直接反駁你。</p>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">🚦 二、工作任務「紅綠燈」：哪些事該放心交給 AI？</h3>
+    <div class="traffic-grid">
+      <div class="traffic-card green">
+        <b>🟢 綠燈放心用：文字整理與換格式</b>
+        <p>會議記錄抓重點、把口語草稿潤飾成通順信件、把雜亂的 Word 文字整理成整齊表格（以表製表）。這類任務資料都在你給的文字裡，省時又安全！</p>
+      </div>
+      <div class="traffic-card yellow">
+        <b>🟡 黃燈要對照：跨文件比較與找資料</b>
+        <p>比對新舊版規章差異、整理多份報告摘要。請務必開啟「開卷考模式（附上原文）」，並抽查 AI 標註的頁碼與條文是否真的吻合。</p>
+      </div>
+      <div class="traffic-card red">
+        <b>🔴 紅燈真人把關：法規裁量與金額核定</b>
+        <p>決定民眾補助資格、法規解釋、預算金額勾稽。<b>嚴禁直接照抄 AI 答案！</b>AI 只能幫忙打草稿或寫 Excel 檢查公式，最終決定必須由真人逐筆核對。</p>
+      </div>
+    </div>
+
+    <div id="tour-reliability">
+      <h3 class="sub-heading">🛡️ 三、從提問到交件的「7 步防呆把關鏈」（點擊卡片看秘訣）</h3>
+      <p style="margin:0 0 8px;color:var(--muted);font-size:.9rem">不想被 AI 坑，不能只靠最後一刻才檢查。點擊下方 1～7 號卡片，看看每一步該注意什麼：</p>
+      <div class="reliability-chain" aria-label="AI 回答可靠性鏈視覺圖">
+        <div class="chain-node active" tabindex="0" role="button" aria-pressed="true" data-chain="0">
+          <span class="chain-num">1</span><b>把問題講清楚</b>
+          <small>講明年份、對象與「不准亂猜」的範圍。</small>
+          <div class="chain-risk">忌：題目太籠統</div>
+        </div>
+        <div class="chain-node" tabindex="0" role="button" aria-pressed="false" data-chain="1">
+          <span class="chain-num">2</span><b>準備最新小抄</b>
+          <small>確認餵給 AI 的是最新正式版規章。</small>
+          <div class="chain-risk">忌：餵到過期舊草案</div>
+        </div>
+        <div class="chain-node control" tabindex="0" role="button" aria-pressed="false" data-chain="2">
+          <span class="chain-num">3</span><b>翻對正確段落</b>
+          <small>用 RAG 精準找出跟這題有關的條文。</small>
+          <div class="chain-risk">忌：抓到同名無關文件</div>
+        </div>
+        <div class="chain-node" tabindex="0" role="button" aria-pressed="false" data-chain="3">
+          <span class="chain-num">4</span><b>規定照小抄寫</b>
+          <small>限制 AI 只能根據提供的段落回答。</small>
+          <div class="chain-risk">忌：任由 AI 自由腦補</div>
+        </div>
+        <div class="chain-node check" tabindex="0" role="button" aria-pressed="false" data-chain="4">
+          <span class="chain-num">5</span><b>點開出處核對</b>
+          <small>確認標註的條文真的支持這句結論。</small>
+          <div class="chain-risk">忌：看到有出處就輕信</div>
+        </div>
+        <div class="chain-node control" tabindex="0" role="button" aria-pressed="false" data-chain="5">
+          <span class="chain-num">6</span><b>算數與真人把關</b>
+          <small>數字用程式驗算，重要決定由人簽核。</small>
+          <div class="chain-risk">忌：讓 AI 心算金額</div>
+        </div>
+        <div class="chain-node" tabindex="0" role="button" aria-pressed="false" data-chain="6">
+          <span class="chain-num">7</span><b>留紀錄常更新</b>
+          <small>把常錯題目記下來，更新小抄庫。</small>
+          <div class="chain-risk">忌：錯一次下次還錯</div>
+        </div>
+      </div>
+
+      <div id="chain-detail" class="chain-detail" aria-live="polite">
+        <div class="chain-detail-head">
+          <div id="chain-detail-icon" class="chain-detail-icon">1</div>
+          <div>
+            <h3 id="chain-detail-title">把問題講清楚（界定任務邊界）</h3>
+            <p id="chain-detail-sub" class="chain-detail-sub">先講清楚 AI 到底要做什麼，以及哪些事不准它自己亂決定。</p>
+          </div>
+        </div>
+        <div class="chain-detail-grid">
+          <div class="chain-detail-card"><b>這一步要做什麼？</b><p id="chain-purpose"></p></div>
+          <div class="chain-detail-card"><b>最常踩的坑</b><p id="chain-risk-detail"></p></div>
+          <div class="chain-detail-card"><b>自我檢查問題</b><p id="chain-question"></p></div>
+          <div class="chain-detail-card"><b>防呆小撇步</b><p id="chain-control"></p></div>
+        </div>
+        <div id="chain-example" class="chain-tip"></div>
+      </div>
+    </div>
+
+    <!-- GLOSSARY -->
+    <div id="glossary-section">
+      <h3 class="sub-heading">📖 四、一秒聽懂專家黑話：AI 術語白話翻譯字典</h3>
+      <p style="margin:0 0 8px;color:var(--muted);font-size:.9rem">開會或看新聞常聽到這些專有名詞嗎？其實它們講的就是上面體驗過的幾件事：</p>
+      <div style="overflow-x:auto">
+        <table class="glossary-table">
+          <thead>
+            <tr>
+              <th>專家常講的黑話／術語</th>
+              <th>白話文到底是什麼意思？</th>
+              <th>本頁對應的生活比喻</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>幻覺 (Hallucination)</b></td>
+              <td>AI 講出「語氣超流暢、格式超像真的一樣，但完全不合事實」的內容。</td>
+              <td>沒讀書卻口才極佳的考生，不會寫也硬掰得頭頭是道。</td>
+            </tr>
+            <tr>
+              <td><b>自回歸生成 (Autoregressive) / Token</b></td>
+              <td>AI 不是一次想好整篇答案，而是把字拆成小積木（Token），一個字一個字往後猜。</td>
+              <td>第 1 站的<b>「超級文字接龍」</b>，一步猜歪後面就會順著圓謊。</td>
+            </tr>
+            <tr>
+              <td><b>認知不確定性 (Epistemic Uncertainty) / 外推 (OOD)</b></td>
+              <td>問到 AI 訓練資料沒收錄的新規定或冷門知識，產生「知識盲區誤差」。</td>
+              <td>第 2 站的<b>「課外超綱題（X &gt; 10）」</b>，再怎麼認真想也是猜錯。</td>
+            </tr>
+            <tr>
+              <td><b>抽樣溫度 (Temperature) / 偶然不確定性</b></td>
+              <td>控制 AI 選字時要「只挑最穩的第一名（低溫）」還是「敢挑冷門字（高溫）」。</td>
+              <td>第 2 站的<b>「乖乖牌照稿唸 vs. 天馬行空即興發揮」</b>。</td>
+            </tr>
+            <tr>
+              <td><b>精確地出錯 (Confidently Wrong)</b></td>
+              <td>在知識盲區（超綱題）把溫度調到最低，導致 AI 每次都極度肯定地給出同一個錯誤答案。</td>
+              <td>第 2 站的<b>「🔴 問超綱題＋乖乖牌模式」</b>，點點全擠在紅區外。</td>
+            </tr>
+            <tr>
+              <td><b>RAG (檢索增強生成) / Grounding</b></td>
+              <td>不靠 AI 死背，先從資料庫找出正確文件段落餵給 AI，讓它照著資料回答。</td>
+              <td>第 3 站的<b>「把小抄翻開放在桌上考開卷考」</b>。</td>
+            </tr>
+            <tr>
+              <td><b>安全護欄 (Guardrail) / 拒答機制</b></td>
+              <td>當系統找不到可靠資料時，強制攔截並誠實回答「資料不足，無法回答」。</td>
+              <td>第 3 站的<b>「🛡️ 不會就老實舉手說不知道」</b>。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 </main>
+
+<!-- TOUR OVERLAY & MODAL -->
 <div id="tour-overlay" class="tour-overlay"></div>
 <div id="tour-card" class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tour-title">
-  <div id="tour-step" class="tour-step"></div><h3 id="tour-title"></h3><p id="tour-text"></p>
-  <div class="tour-actions"><span id="tour-progress" class="tour-progress"></span><button id="tour-skip" class="btn btn-ghost">結束</button><button id="tour-prev" class="btn btn-ghost">上一步</button><button id="tour-next" class="btn btn-primary">下一步</button></div>
+  <div id="tour-step" class="tour-step"></div>
+  <h3 id="tour-title"></h3>
+  <p id="tour-text"></p>
+  <div class="tour-actions">
+    <span id="tour-progress" class="tour-progress"></span>
+    <button id="tour-skip" class="btn btn-ghost">結束</button>
+    <button id="tour-prev" class="btn btn-ghost">上一步</button>
+    <button id="tour-next" class="btn btn-primary">下一步</button>
+  </div>
 </div>
+
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
 <script>
 const $=id=>document.getElementById(id), NS="http://www.w3.org/2000/svg";
 const tempInput=$("temp-input"),posInput=$("pos-input"),regLine=$("reg-line"),trueCurve=$("true-curve"),band=$("prediction-band"),aimLine=$("aim-line"),trainPointsG=$("train-points"),regGenG=$("reg-generated-points"),distGenG=$("dist-generated-points"),pdfCurve=$("pdf-curve"),pdfTailTop=$("pdf-tail-top"),pdfTailBottom=$("pdf-tail-bottom");
 const TRUE_SLOPE=4.5,TRUE_INTERCEPT=20,NOISE_STD=7.5;let trainData=[],generatedPoints=[],statModel={};
 const regScale={x:v=>55+((v-1)/14)*590,y:v=>445-(v/120)*420};
-const distScale={x:v=>50+v*310,y:v=>445-(v/120)*420};
 
 function randNormal(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
 function erf(x){const s=x<0?-1:1,a=Math.abs(x),t=1/(1+.3275911*a);return s*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-a*a))}
 function normalCDF(z){return .5*(1+erf(z/Math.sqrt(2)))}
 function el(name,attrs={}){const e=document.createElementNS(NS,name);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));return e}
-function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove("show"),1800)}
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove("show"),1900)}
 
 function buildData(){
   trainData=Array.from({length:50},()=>{
@@ -319,29 +915,22 @@ function calculateStats(){
   statModel={slope,intercept,xMean,sumSqDevX:ssx,se:Math.sqrt(sse/(n-2)),n};
 }
 
-// 客觀真值容許標準差（基準容許門檻）
 function getObjectiveSigma(x){
   const inSampleX=Math.min(10,x);
   return statModel.se*Math.sqrt(1+1/statModel.n+(inSampleX-statModel.xMean)**2/statModel.sumSqDevX);
 }
-
-// 未知外推區（X > 10）的認知偏誤：真實世界規律趨緩，但模型僅能依訓練集做線性外推
-function getEpistemicBias(x){
-  return x<=10 ? 0 : 0.95 * Math.pow(x-10, 1.75);
+function getBaseTolerance(){
+  return statModel.se * Math.sqrt(1 + 1 / statModel.n);
 }
-
-// 客觀真值中心 vs 模型線性預測中心
 function getTrueMean(x){
-  return (statModel.slope*x+statModel.intercept) - getEpistemicBias(x);
+  const linear = statModel.slope * x + statModel.intercept;
+  const extrapBias = x > 10 ? -1.85 * Math.pow(x - 10, 1.75) : 0;
+  return linear + extrapBias;
 }
-function getModelMean(x){
-  return statModel.slope*x+statModel.intercept;
-}
-
-// 模型抽樣標準差（同時受外推距離與溫度影響）
-function getModelSamplingSigma(x,temp){
-  const base=statModel.se*Math.sqrt(1+1/statModel.n+(x-statModel.xMean)**2/statModel.sumSqDevX);
-  return Math.max(0.01, base*temp*1.75);
+function getEpistemicSigma(x){
+  const base = getObjectiveSigma(x);
+  const extrapFactor = x > 10 ? 1 + 0.14 * Math.pow(x - 10, 1.35) : 1;
+  return base * extrapFactor;
 }
 
 function drawGrids(){
@@ -366,22 +955,6 @@ function drawGrids(){
   $("dist-axis").appendChild(el("line",{x1:50,y1:445,x2:400,y2:445,class:"axis"}));
 }
 
-// 補充核心統計輔助函式（區分「客觀基準容許誤差」與「外推認知不確定性／偏誤」）
-function getBaseTolerance(){
-  return statModel.se * Math.sqrt(1 + 1 / statModel.n);
-}
-function getTrueMean(x){
-  const linear = statModel.slope * x + statModel.intercept;
-  // X > 10 進入外推區時，真實世界規律可能出現彎曲偏誤（模型未知，仍以直線外推，導致「精確地出錯」）
-  const extrapBias = x > 10 ? -0.85 * Math.pow(x - 10, 1.75) : 0;
-  return linear + extrapBias;
-}
-function getEpistemicSigma(x){
-  const base = getObjectiveSigma(x);
-  const extrapFactor = x > 10 ? 1 + 0.14 * Math.pow(x - 10, 1.35) : 1;
-  return base * extrapFactor;
-}
-
 function drawStatic(){
   trainPointsG.innerHTML="";
   drawGrids();
@@ -390,6 +963,13 @@ function drawStatic(){
   regLine.setAttribute("y1",regScale.y(statModel.slope+statModel.intercept));
   regLine.setAttribute("x2",regScale.x(15));
   regLine.setAttribute("y2",regScale.y(statModel.slope*15+statModel.intercept));
+
+  // 繪製真實標準答案中心線 (true-curve)
+  const truePts=[];
+  for(let i=1;i<=15;i+=.25){
+    truePts.push(`${regScale.x(i)},${regScale.y(getTrueMean(i))}`);
+  }
+  trueCurve.setAttribute("d","M "+truePts.join(" L "));
 }
 
 function line(id,val,label){
@@ -405,21 +985,19 @@ function updateUI(clear=true){
   const temp=+tempInput.value,x=+posInput.value;
   $("temp-val").textContent=temp.toFixed(1);
   $("pos-val").textContent=x.toFixed(1);
-  if(clear&&generatedPoints.length){clearAll(false);toast("參數已變更，舊樣本已清除")}
-  
+  if(clear&&generatedPoints.length){clearAll(false);toast("開關已調整，圖上舊圓點已重設")}
+
   aimLine.setAttribute("x1",regScale.x(x));
   aimLine.setAttribute("x2",regScale.x(x));
   aimLine.setAttribute("y1",25);
   aimLine.setAttribute("y2",445);
-  
-  // 客觀真值容許帶（隨真實期望值與基準容許度 ±2σ 繪製，呈現外推區的認知落差）
+
   const tol = getBaseTolerance() * 2;
   const pts=[];
   for(let i=1;i<=15;i+=.25){const m=getTrueMean(i);pts.push(`${regScale.x(i)},${regScale.y(m-tol)}`)}
   for(let i=15;i>=1;i-=.25){const m=getTrueMean(i);pts.push(`${regScale.x(i)},${regScale.y(m+tol)}`)}
   band.setAttribute("d","M "+pts.join(" L ")+" Z");
 
-  // 模型自身預測期望值 (modelMean) vs 客觀真值容許上下界 (up, low)
   const modelMean = statModel.slope * x + statModel.intercept;
   const trueMean = getTrueMean(x);
   const epiSigma = getEpistemicSigma(x);
@@ -429,12 +1007,20 @@ function updateUI(clear=true){
   line("boundary-top",up,"label-top");
   line("boundary-bottom",low,"label-bottom");
   line("mean-line",modelMean,"label-mean");
+  const topY=+$("label-top").getAttribute("y"),botY=+$("label-bottom").getAttribute("y");
+  let meanY=+$("label-mean").getAttribute("y");
+  if(Math.abs(meanY-topY)<16){
+    meanY=meanY<=topY?Math.max(16,topY-16):Math.min(478,topY+16);
+    $("label-mean").setAttribute("y",meanY);
+  } else if(Math.abs(meanY-botY)<16){
+    meanY=meanY<=botY?Math.max(16,botY-16):Math.min(478,botY+16);
+    $("label-mean").setAttribute("y",meanY);
+  }
   $("dist-bg-top").setAttribute("y",25);
   $("dist-bg-top").setAttribute("height",Math.max(0,regScale.y(up)-25));
   $("dist-bg-bottom").setAttribute("y",regScale.y(low));
   $("dist-bg-bottom").setAttribute("height",Math.max(0,445-regScale.y(low)));
 
-  // 機率密度曲線（修正基準 X 軸對齊 50px）
   const distX = v => 50 + v * 300;
   const yMin = modelMean - ai * 4, yMax = modelMean + ai * 4;
   const cp = [`M 50,${regScale.y(yMin)}`];
@@ -445,7 +1031,6 @@ function updateUI(clear=true){
   cp.push(`L 50,${regScale.y(yMax)} Z`);
   pdfCurve.setAttribute("d",cp.join(" "));
 
-  // 上拒絕域尾端著色 (y > up)
   if(yMax > up){
     const startY = Math.max(yMin, up);
     const tp = [`M 50,${regScale.y(startY)}`];
@@ -456,7 +1041,6 @@ function updateUI(clear=true){
     pdfTailTop.setAttribute("d",tp.join(" "));
   } else { pdfTailTop.setAttribute("d",""); }
 
-  // 下拒絕域尾端著色 (y < low)
   if(yMin < low){
     const endY = Math.min(yMax, low);
     const bp = [`M 50,${regScale.y(yMin)}`];
@@ -467,16 +1051,31 @@ function updateUI(clear=true){
     pdfTailBottom.setAttribute("d",bp.join(" "));
   } else { pdfTailBottom.setAttribute("d",""); }
 
-  // 雙尾非對稱常態拒絕域機率 P(Y > up) + P(Y < low)
   const pTop = 1 - normalCDF((up - modelMean) / ai);
   const pBottom = normalCDF((low - modelMean) / ai);
   const expected = Math.min(1, Math.max(0, pTop + pBottom));
   $("stat-expected").textContent=(expected*100).toFixed(1)+"%";
 
-  const region=x<=10?"訓練範圍內":"未知外推區";
+  const region=x<=10?"課本考古題區":"課外超綱盲猜區";
   $("stat-region").textContent=region;
   $("zone-tag").textContent=region;
   $("zone-tag").style.cssText=x<=10?"":"background:#fff7ed;color:#9a3412";
+
+  // 動態白話診斷
+  const diag=$("live-diagnosis");
+  if(x>10 && temp<=0.4){
+    diag.className="diagnosis-box warn";
+    diag.innerHTML=`🚨 <b>超有自信地答錯！</b>題目已超出課本範圍（X=${x}），就算把溫度調得很保守（${temp}），AI 依然每次都篤定猜在好球帶外面！這時必須靠第 3 站的「翻小抄 (RAG)」才能救它。`;
+  } else if(x>10){
+    diag.className="diagnosis-box warn";
+    diag.innerHTML=`⚠️ <b>超綱盲猜＋自由亂聊：</b>AI 沒讀過這個範圍（X=${x}），而且溫度偏高（${temp}），回答既偏離事實又到處亂飄，瞎掰風險高達 ${(expected*100).toFixed(0)}%！`;
+  } else if(temp>=1.1){
+    diag.className="diagnosis-box warn";
+    diag.innerHTML=`🎲 <b>明明懂卻愛亂發揮：</b>題目在課本內（X=${x}），但自由發揮度調太高（${temp}），導致山峰變得很寬，常不小心講出界外瞎話。辦正事請把溫度調低！`;
+  } else {
+    diag.className="diagnosis-box";
+    diag.innerHTML=`✅ <b>穩定安全區：</b>題目是 AI 讀過的考古題（X=${x}），且發揮度適中（${temp}），絕大多數回答都會穩穩落在綠色好球帶內。`;
+  }
 }
 
 function generatePoints(count=1){
@@ -492,8 +1091,7 @@ function generatePoints(count=1){
     const color = isH ? "#dc2626" : "#15803d";
     generatedPoints.push({y,isH});
     regGenG.appendChild(el("circle",{cx:regScale.x(x),cy:regScale.y(y),r:5.5,fill:color,stroke:"#fff","stroke-width":1.4,class:"generated"}));
-    
-    // 讓右圖抽樣點的水平位置自然分佈在鐘形曲線密度內部
+
     const density = Math.exp(-0.5 * ((y - modelMean) / ai) ** 2);
     const maxSpread = Math.max(12, density * 275);
     const px = 56 + Math.random() * maxSpread;
@@ -532,7 +1130,7 @@ function clearAll(show=true){
   regGenG.innerHTML="";
   distGenG.innerHTML="";
   updateStats();
-  if(show)toast("樣本已全數清除");
+  if(show)toast("圖上圓點已全數清除");
 }
 
 // 支援直接在左圖點擊或拖曳改變提問位置 X
@@ -550,7 +1148,6 @@ function setPosFromSvgEvent(e){
     updateUI(true);
   }
 }
-canvasReg.style.cursor = "ew-resize";
 canvasReg.addEventListener("pointerdown", e => { isDraggingReg = true; setPosFromSvgEvent(e); });
 window.addEventListener("pointermove", e => { if(isDraggingReg) setPosFromSvgEvent(e); });
 window.addEventListener("pointerup", () => { isDraggingReg = false; });
@@ -566,7 +1163,7 @@ posInput.addEventListener("input",()=>{
 $("btn-run").onclick=()=>generatePoints(1);
 $("btn-run-batch").onclick=()=>runBatchSmooth(20);
 $("btn-clear").onclick=()=>clearAll(true);
-$("btn-reset-data").onclick=()=>{buildData();toast("已重新生成隨機訓練資料集")};
+$("btn-reset-data").onclick=()=>{buildData();toast("已換一組新的課本例題資料")};
 
 document.querySelectorAll(".preset").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".preset").forEach(x=>x.classList.remove("active"));
@@ -576,15 +1173,37 @@ document.querySelectorAll(".preset").forEach(b=>b.onclick=()=>{
   updateUI(true);
 });
 
-// 動態機率樹互動（已修正 SVG 百分比 viewBox 與真實路徑依賴連線）
-const treeLinesSvg = $("tree-lines");
-treeLinesSvg.setAttribute("viewBox", "0 0 100 100");
-treeLinesSvg.setAttribute("preserveAspectRatio", "none");
-
+// =========================================================
+// STAGE 1: 動態文字接龍樹
+// =========================================================
 const pathCases={
-  explain:{start:"提示詞：LLM 幻覺",steps:[[["大型語言模型",44],["生成式 AI",36],["AI 系統",20]],[["依上下文預測",48],["從資料庫查找",18,1],["進行向量運算",34]],[["下一個 Token",55],["完整答案",14,1],["候選文字",31]],[["流暢但可能錯誤",46,1],["答案必然正確",9,1],["需要外部驗證",45]]]},
-  official:{start:"提示詞：判斷核定層級",steps:[[["依現有資料",46],["依一般經驗",29,1],["確認適用規定",25]],[["證據仍不足",38],["可以直接核定",16,1],["檢索現行條文",46]],[["標示來源版本",47],["補出合理條號",12,1],["區分事實推論",41]],[["交由承辦覆核",57],["直接作成決定",8,1],["輸出暫定草案",35]]]},
-  creative:{start:"提示詞：未來鐵路故事",steps:[[["一列火車",34],["一道藍光",33],["一座城市",33]],[["穿過時間",36],["沿著海岸",32],["在雲端醒來",32]],[["帶著記憶",34],["發出低鳴",33],["改變季節",33]],[["開放式結尾",34],["回到起點",33],["意外轉折",33]]]}
+  explain:{
+    start:"題目：AI 為什麼會瞎掰？",
+    steps:[
+      [["大型語言模型",44],["生成式 AI",36],["AI 聊天機器人",20]],
+      [["是在玩文字接龍",48],["會去資料庫查真相",18,1],["靠算機率猜字",34]],
+      [["每次猜下一個詞",55],["直接背出標準答案",14,1],["挑看起來順口的字",31]],
+      [["所以流暢但可能講錯",46],["因此答案絕對正確",9,1],["需要翻資料核對",45]]
+    ]
+  },
+  official:{
+    start:"題目：這筆經費能不能直接核銷？",
+    steps:[
+      [["先查機關現行規定",46],["照以前差不多經驗",29,1],["先看有無附上規章",25]],
+      [["發現目前資料不足",38],["應該可以直接過關",16,1],["翻出最新報支要點",46]],
+      [["標註條文與版本",47],["自己湊個合理條號",12,1],["把事實跟推測分開",41]],
+      [["交給承辦人最後把關",57],["直接替主管蓋章核定",8,1],["先做成草稿供核對",35]]
+    ]
+  },
+  creative:{
+    start:"題目：寫一段未來鐵路故事",
+    steps:[
+      [["一列銀河火車",34],["一道藍色閃光",33],["一座漂浮車站",33]],
+      [["穿過時間裂縫",36],["沿著星空海岸",32],["在雲端緩緩醒來",32]],
+      [["載著遺失的記憶",34],["發出溫柔低鳴",33],["悄悄改變了季節",33]],
+      [["迎來意想不到的結局",34],["回到最初的月台",33],["展開下一段冒險",33]]
+    ]
+  }
 };
 let pathMode="explain",pathGreedy=false,treeStep=-1,treeTimer=null,treeSelection=[],lastChosenX=50;
 const treePos={root:[50,8],rows:[[18,50,82],[18,50,82],[18,50,82],[18,50,82]],ys:[27,47,67,87]};
@@ -602,7 +1221,7 @@ function pathPick(a){
 function stopTree(){
   clearInterval(treeTimer);
   treeTimer=null;
-  $('btn-tree-play').textContent='▶ 播放逐步生成';
+  $('btn-tree-play').textContent='▶ 播放文字接龍';
 }
 function resetTree(){
   stopTree();
@@ -610,11 +1229,13 @@ function resetTree(){
   treeSelection=[];
   lastChosenX=50;
   $('tree-lines').innerHTML='';
-  $('tree-nodes').innerHTML='';$('tree-playhead').classList.remove('show');
-  $('path-history-list').innerHTML='';$('path-output').textContent='按「播放逐步生成」觀察路徑。';
+  $('tree-nodes').innerHTML='';
+  $('tree-playhead').classList.remove('show');
+  $('path-history-list').innerHTML='';
+  $('path-output').textContent='點擊「▶ 播放文字接龍」，觀察 AI 如何一步步把句子接出來。';
   $('tree-step-label').textContent='尚未開始';
-  $('tree-context-label').textContent='起始提示';
-  $('tree-risk-label').textContent='等待生成';
+  $('tree-context-label').textContent='起始題目';
+  $('tree-risk-label').textContent='等待開始';
   $('tree-risk-label').style.color='#173b70';
   drawRoot();
 }
@@ -623,14 +1244,15 @@ function nodeEl(text,pct,x,y,cls=''){
   n.className='tree-token '+cls;
   n.style.left=x+'%';
   n.style.top=y+'%';
-  n.innerHTML=`${text}<span class="pct">${pct}</span><span class="tag">候選 Token</span>`;
+  const tagText = cls.includes('risky') ? '⚠️ 歪樓風險詞' : (cls.includes('root') ? '起點' : '候選接龍詞');
+  n.innerHTML=`${text}<span class="pct">${pct}</span><span class="tag">${tagText}</span>`;
   $('tree-nodes').appendChild(n);
   requestAnimationFrame(()=>n.classList.add('visible'));
   return n;
 }
 function drawRoot(){
-  const c=pathCases[pathMode],n=nodeEl(c.start,'上下文入口',50,treePos.root[1],'root');
-  n.dataset.key='root';
+  const c=pathCases[pathMode];
+  nodeEl(c.start,'把問題讀進腦袋',50,treePos.root[1],'root');
 }
 function edge(x1,y1,x2,y2,cls=''){
   const p=document.createElementNS(NS,'path');
@@ -642,37 +1264,37 @@ function edge(x1,y1,x2,y2,cls=''){
 }
 function advanceTree(){
   const c=pathCases[pathMode];
-  if(treeStep>=c.steps.length-1){stopTree();$('tree-step-label').textContent='生成完成';return}
+  if(treeStep>=c.steps.length-1){stopTree();$('tree-step-label').textContent='接龍完成！';return}
   treeStep++;
   const temp=+$('path-temp').value,a=pathItems(c.steps[treeStep],temp),chosen=pathPick(a);
   const y=treePos.ys[treeStep],prevY=treeStep===0?treePos.root[1]:treePos.ys[treeStep-1];
   const prevX=treeStep===0?50:lastChosenX;
   let chosenX=50;
-  
+
   a.forEach((item,i)=>{
     const x=treePos.rows[treeStep][i],risk=item.r?' risky':'';
     const line=edge(prevX,prevY,x,y,risk);
-    const n=nodeEl(item.t,(item.p*100).toFixed(0)+'%',x,y,risk);
+    const n=nodeEl(item.t,'中選機率 '+(item.p*100).toFixed(0)+'%',x,y,risk);
     if(item.t===chosen.t){
       chosenX=x;
       setTimeout(()=>{n.classList.add('selected');line.classList.add('active')},150);
     }
   });
-  
+
   lastChosenX=chosenX;
   treeSelection.push(chosen);
   const head=$('tree-playhead');
   head.style.left=chosenX+'%';
   head.style.top=y+'%';
   head.classList.add('show');
-  
+
   const hasRisk = treeSelection.some(s => s.r);
   $('tree-step-label').textContent=`第 ${treeStep+1}／${c.steps.length} 步`;
-  $('tree-context-label').textContent=`提示詞 + ${treeSelection.length} Token`;
-  $('tree-risk-label').textContent=chosen.r?'此步選中風險候選':(hasRisk?'前文含風險偏差':'目前路徑正常');
+  $('tree-context-label').textContent=`題目 + 已接 ${treeSelection.length} 句`;
+  $('tree-risk-label').textContent=chosen.r?'🚨 挑中歪樓詞！':(hasRisk?'⚠️ 前面已歪樓（順著圓謊中）':'🟢 目前接龍安全');
   $('tree-risk-label').style.color=(chosen.r||hasRisk)?'#c2410c':'#15803d';
-  $('path-output').textContent='目前序列：'+treeSelection.map(x=>x.t).join(' → ');
-  $('path-history-list').innerHTML=treeSelection.map((x,i)=>`<li>第 ${i+1} 步選到「<b>${x.t}</b>」（機率 ${(x.p*100).toFixed(0)}%）${x.r?' <span style="color:#c2410c;font-weight:800">[可能誘發自回歸偏差]</span>':''}。</li>`).join('');
+  $('path-output').textContent='目前接出來的句子：'+treeSelection.map(x=>x.t).join('，');
+  $('path-history-list').innerHTML=treeSelection.map((x,i)=>`<li>第 ${i+1} 步挑中「<b>${x.t}</b>」（當時機率 ${(x.p*100).toFixed(0)}%）${x.r?' <span style="color:#c2410c;font-weight:800">← 聽起來順但不是事實，會害後面跟著歪掉！</span>':''}</li>`).join('');
   if(treeStep===c.steps.length-1)stopTree();
 }
 
@@ -680,38 +1302,143 @@ $('btn-tree-play').onclick=()=>{
   if(treeStep>=pathCases[pathMode].steps.length-1)resetTree();
   if(treeTimer){stopTree();return}
   advanceTree();
-  treeTimer=setInterval(advanceTree,+$('tree-speed').value);$('btn-tree-play').textContent='⏸ 暫停動畫';
+  treeTimer=setInterval(advanceTree,+$('tree-speed').value);
+  $('btn-tree-play').textContent='⏸ 暫停接龍';
 };
-$('btn-tree-step').onclick=()=>{stopTree();advanceTree()};$('btn-tree-reset').onclick=resetTree;
+$('btn-tree-step').onclick=()=>{stopTree();advanceTree()};
+$('btn-tree-reset').onclick=resetTree;
 $('tree-speed').oninput=()=>{
   const v=+$('tree-speed').value;
   $('tree-speed-val').textContent=v<650?'快速':v>1000?'慢速':'正常';
   if(treeTimer){stopTree();$('btn-tree-play').click()}
 };
-$('path-temp').oninput=()=>{$('path-temp-val').textContent=(+$('path-temp').value).toFixed(1);resetTree()};$('btn-path-greedy').onclick=()=>{
+$('path-temp').oninput=()=>{$('path-temp-val').textContent=(+$('path-temp').value).toFixed(1);resetTree()};
+$('btn-path-greedy').onclick=()=>{
   pathGreedy=!pathGreedy;
-  $('btn-path-greedy').textContent='最高機率模式：'+(pathGreedy?'開':'關');
-  $('tree-mode-label').textContent=pathGreedy?'Greedy decoding':'機率抽樣';
+  $('btn-path-greedy').textContent='只選第一名：'+(pathGreedy?'開':'關');
+  $('tree-mode-label').textContent=pathGreedy?'永遠只挑最高分 (Greedy)':'依機率擲骰子';
   resetTree();
 };
 document.querySelectorAll('.path-scenario').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.path-scenario').forEach(x=>x.classList.remove('active'));
   b.classList.add('active');
   pathMode=b.dataset.path;
-  $('path-prompt').value=pathMode==='official'?'請依現行規定判斷本案是否可以核定。':pathMode==='creative'?'請寫一個關於未來鐵路的短篇開場。':'請說明大型語言模型為何可能產生幻覺。';
+  $('path-prompt').value=pathMode==='official'?'請依現行規定判斷這筆經費能不能直接核銷。':pathMode==='creative'?'請寫一個關於未來鐵路的短篇故事開頭。':'請說明大型語言模型為何可能產生幻覺。';
   resetTree();
 });
 resetTree();
 
-// 可靠性鏈資訊
+// =========================================================
+// STAGE 3: 開卷考 RAG 實驗室
+// =========================================================
+const ragCases={
+  none:{
+    answer:"是的！120 萬元應該已經超過一般常見的公告金額門檻（通常差不多是 100 萬元左右），所以可以直接認定已經超過門檻。",
+    citation:"",
+    verify:"危險！AI 根本沒有翻桌上的小抄，而是憑腦中模糊的『一般常見印象』隨口回答，萬一貴單位有特殊規定就會大出包。",
+    rel:"完全沒翻小抄",
+    support:"零證據支持",
+    trust:"❌ 危險不可信",
+    cls:"warn",
+    help:"【❌ 閉卷硬猜模式】注意看：AI 講話超順、超肯定，但完全沒看桌上的規定，純粹憑印象瞎猜！",
+    obs:[
+      "系統沒有去翻任何小抄，直接讓 AI 憑印象裸考。",
+      "AI 語氣非常有自信，最容易騙過沒空查證的人。",
+      "在正式工作場合，這種『憑印象猜對一半』的回答最容易造成疏失。"
+    ]
+  },
+  good:{
+    answer:"根據桌上的《示範採購作業規範》第 8 條，公告金額門檻為新臺幣 100 萬元。本案設備採購預算 120 萬元已比門檻高出 20 萬元，因此確定已超過門檻。",
+    citation:"小抄 A｜採購作業規範 第 8 條",
+    verify:"通過把關！AI 確實翻開了小抄 A 第 8 條，條文裡白紙黑字寫著 100 萬元，且 120 萬 > 100 萬比較正確。",
+    rel:"精準翻對頁",
+    support:"白紙黑字支持",
+    trust:"✅ 有憑有據可信",
+    cls:"good",
+    help:"【✅ 開卷找對頁（正確 RAG）】藍框標示系統先幫 AI 翻開了小抄 A，AI 照著條文回答並標出第 8 條，安心可靠！",
+    obs:[
+      "系統先幫 AI 找到完全對題的《小抄 A 採購規範》。",
+      "回答裡的條號（第 8 條）與金額（100 萬）跟小抄一字不差。",
+      "這就是 RAG（檢索增強生成）的核心價值：把『背誦考』變成『開卷考』。"
+    ]
+  },
+  bad:{
+    answer:"依據示範資料規定，公告金額門檻為新臺幣 100 萬元，因此 120 萬元之設備採購已經超過門檻。",
+    citation:"小抄 B｜零用金管理要點 第 3 點",
+    verify:"抓到假引注！雖然回答下面附了『出處：小抄 B 第 3 點』，但點開小抄 B 一看，裡面講的是『零用金 1 萬元上限』，完全張冠李戴！",
+    rel:"翻錯本小抄",
+    support:"文不對題",
+    trust:"⚠️ 假引注不可信",
+    cls:"warn",
+    help:"【⚠️ 拿錯小抄硬湊（假引注陷阱）】注意橘框小抄 B：裡面明明在講零用金 1 萬元，AI 卻硬拿來當採購門檻的出處！",
+    obs:[
+      "表面上有附上『出處標籤』，一般人看到有出處就很容易放心簽名。",
+      "其實搜尋引擎抓錯了小抄（抓到零用金），AI 卻硬著頭皮把兩件事湊在一起。",
+      "重要教訓：看到 AI 附出處，一定要『點開原文瞄一眼』，確認真的在講同一件事！"
+    ]
+  },
+  refusal:{
+    answer:"【🛡️ 系統安全煞車啟動：資料不足，拒絕亂猜】\n我翻遍了桌上的小抄庫，但找不到跟「公告金額門檻」有關的有效規定（或相關檔案未授權讀取）。依照安全防呆規定，我不能自己瞎掰數字。請先補充最新的《採購作業規範》檔案！",
+    citation:"",
+    verify:"防呆成功！當桌上小抄沒有寫、或找不到資料時，AI 主動踩煞車說「我不知道」，完全避開瞎掰風險。",
+    rel:"查無對應條文",
+    support:"不強行回答",
+    trust:"🛡️ 安全煞車成功",
+    cls:"refusal",
+    help:"【🛡️ 誠實說不知道（Guardrail 安全護欄）】真正好用的 AI，在沒把握時會老實舉手說『資料不足』，絕不硬掰！",
+    obs:[
+      "系統發現小抄裡沒有答案時，立刻啟動『安全護欄 (Guardrail)』。",
+      "寧可老實告訴你『找不到資料』，也絕不為了討好你而硬編一個數字。",
+      "企業與機關導入 AI 時，有沒有這道『敢說不知道』的煞車，是系統成不成熟的關鍵。"
+    ]
+  }
+};
+let ragMode="none";
+function runRagDemo(){
+  const c=ragCases[ragMode],card=$("rag-answer-card");
+  card.className="answer-card "+c.cls;
+  $("rag-answer").innerHTML=c.answer.replace(/\n/g,"<br>");
+  $("rag-citations").innerHTML=c.citation?`<span class="citation-chip">📌 標註出處：${c.citation}</span>`:`<span class="citation-chip" style="background:#e2e8f0;color:#475569">無標註出處</span>`;
+  $("rag-verification").className="verification "+c.cls;
+  $("rag-verification").textContent="🔍 把關結果："+c.verify;
+  $("score-relevance").textContent=c.rel;
+  $("score-support").textContent=c.support;
+  $("score-trust").textContent=c.trust;
+  $("rag-mode-help").textContent=c.help;
+  c.obs.forEach((v,i)=>$("rag-observe-"+(i+1)).textContent=v);
+
+  ["flow-retrieve","flow-cite","flow-verify"].forEach(id=>$(id).classList.remove("on"));
+  document.querySelectorAll(".doc").forEach(d=>d.classList.remove("retrieved","mismatch","refusal"));
+
+  if(ragMode==="good"){
+    $("flow-retrieve").classList.add("on");$("flow-cite").classList.add("on");$("rag-doc-a").classList.add("retrieved");
+  } else if(ragMode==="bad"){
+    $("flow-retrieve").classList.add("on");$("flow-cite").classList.add("on");$("rag-doc-b").classList.add("mismatch");
+  } else if(ragMode==="refusal"){
+    $("flow-retrieve").classList.add("on");document.querySelectorAll(".doc").forEach(d=>d.classList.add("refusal"));
+  }
+  $("flow-verify").classList.add("on");
+}
+document.querySelectorAll(".rag-mode").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".rag-mode").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  ragMode=b.dataset.mode;
+  runRagDemo();
+});
+$("btn-rag-run").onclick=()=>{runRagDemo();toast("已重新執行開卷考測試")};
+runRagDemo();
+
+// =========================================================
+// STAGE 4: 7 步防呆把關鏈
+// =========================================================
 const chainData=[
- {title:"問題與任務",sub:"先界定 AI 到底要做什麼，以及什麼不應由 AI 自行決定。",purpose:"釐清任務目的、對象、輸出格式、資料範圍及時效要求。",risk:"問題過度籠統、缺少年度或機關範圍，導致模型自行補齊條件。",question:"問題是否包含必要的時間、對象、依據、格式與禁止事項？",control:"使用任務範本、必要欄位及範圍限制；資訊不足時要求模型先提問或標示不足。",example:"政府業務例：要求摘要預算案時，應指定年度、基金別、資料來源及不可自行推估的欄位。"},
- {title:"可用證據",sub:"確認有哪些資料可作為答案依據，以及資料是否仍有效。",purpose:"辨識正式文件、附件、資料表、法規版本與更新日期。",risk:"使用草案、舊版本、非權威來源，或關鍵附件根本未提供。",question:"資料是否為正式版本？是否涵蓋本題期間與適用對象？",control:"建立版本欄位、來源標記、有效日期及文件權威性分級。",example:"政府業務例：引用法規前，先確認是否為現行條文，而不是簡報內的舊版摘要。"},
- {title:"檢索與選材",sub:"從資料庫中找出真正與問題相關且足以回答的段落。",purpose:"提高提供給模型之脈絡的相關性、完整性與可追溯性。",risk:"只因關鍵字相似而找到錯誤文件，或漏掉例外條款與附表。",question:"檢索結果是否直接回答問題？是否還有相反規定、例外或較新文件？",control:"結合關鍵字與語意檢索、文件篩選、日期限制、重排序及多段證據比對。",example:"政府業務例：查詢採購門檻時，不應取用題名相近的零用金或差旅費規定。"},
- {title:"模型生成",sub:"模型依提示及檢索脈絡組織文字，但仍可能加入未被證據支持的內容。",purpose:"將證據整理成符合任務格式、清楚且可使用的草稿。",risk:"過度補全、錯誤推論、忽略限制條件，或把推測寫成確定事實。",question:"每個重要主張是否能回到提供的證據？模型是否加入資料中不存在的數字？",control:"要求依證據回答、逐項引用、區分事實與推論，資料不足時輸出固定警示。",example:"政府業務例：產製修正說明時，模型可協助組織文字，但不得自行創造核定日期或金額。"},
- {title:"引用驗證",sub:"引用不只要存在，還必須真的支持回答中的主張。",purpose:"確認來源真實、定位正確、內容相關且支持程度足夠。",risk:"引用錯誤頁碼、引用內容不支持結論，或只支持部分主張。",question:"點開來源後，能否在指定段落直接找到支持這句話的內容？",control:"逐句對照、引用跨度檢查、數字比對、來源存在性及支持度評分。",example:"政府業務例：文件 B 即使真實存在，若僅規範零用金，就不能支持採購公告金額的判斷。"},
- {title:"規則與人工覆核",sub:"依任務風險決定自動檢核、抽查或逐案覆核的程度。",purpose:"在輸出投入使用前，找出數字、邏輯、法規與權責上的錯誤。",risk:"所有任務採相同覆核方式，導致高風險案件控制不足或低風險工作負擔過重。",question:"若答案錯誤，對權利義務、預算、決策或對外發布的影響有多大？",control:"風險分級、勾稽規則、異常提示、抽樣覆核、權限控管及必要紀錄。",example:"政府業務例：格式轉換可採抽查；法規判斷、預算數字及正式對外內容則應採更嚴謹覆核。"},
- {title:"使用與回饋",sub:"追蹤輸出如何被使用，將錯誤轉化為流程與工具的改善。",purpose:"建立可追溯紀錄、錯誤回報、版本改善及使用成效評估。",risk:"錯誤答案被複製到後續文件，或相同問題一再發生卻未修正資料與規則。",question:"是否知道答案被用在哪裡？發現錯誤後，能否回溯資料、提示與檢索結果？",control:"保留必要操作紀錄、建立回饋管道、更新知識庫、測試案例與工具版本。",example:"政府業務例：將常見錯誤整理成檢核規則，讓一次修正成為可重複使用的『輪子』。"}
+  {title:"第 1 步：把問題講清楚（界定範圍）",sub:"先講清楚 AI 到底要做什麼，以及哪些事不准它自己亂決定。",purpose:"講明任務目的、適用年份、對象、想要的表格格式，以及『沒寫在資料裡的不能自己瞎猜』。",risk:"只問一句『幫我寫某案說明』，條件太籠統，害 AI 自己隨便腦補年份跟規定。",question:"我的問題有沒有寫清楚時間、對象、依據檔案，以及『不知道就要說不知道』？",control:"使用固定提問範本，並在結尾加上：『若提供之資料未提及，請直接標示資料不足，請勿推論。』",example:"💡 實戰舉例：請整理 115 年度交通基金預算重點，僅依附件表格回答，不可自行推估未列出之金額。"},
+  {title:"第 2 步：準備最新小抄（確認資料有效）",sub:"餵給 AI 的檔案如果是過期舊草案，AI 答得再好也是錯的。",purpose:"確認放在桌上的規章、辦法、數據表是『最新正式核定版』，而不是三年前的舊簡報。",risk:"不小心把還沒通過的草案、舊年度規定丟進資料庫，導致 AI 照著舊規定給出錯誤建議。",question:"這份檔案是最新的正式版嗎？適用期間有沒有包含這次要問的案件？",control:"檔案命名標註生效日期與版本號，淘汰過期舊檔，不把非正式草稿混入 AI 知識庫。",example:"💡 實戰舉例：查補助標準前，先確認餵給 AI 的是今年最新公告的作業要點，而非去年的舊簡報。"},
+  {title:"第 3 步：翻對正確段落（RAG 精準檢索）",sub:"從檔案庫裡把真正跟這題有關的條文跟但書一起翻出來。",purpose:"確保交給 AI 參考的段落完整、對題，而且沒有漏掉『但書』或『例外規定』。",risk:"只看關鍵字很像就抓錯文件（例如問採購卻抓到零用金），或只抓到第 1 項卻漏掉第 2 項例外。",question:"抓出來的這幾段文字，真的能直接回答我的問題嗎？有沒有漏掉例外條款？",control:"結合關鍵字與語意搜尋，並把整條條文（含但書與附表）一起抓出來給 AI 看。",example:"💡 實戰舉例：問『120 萬設備採購』時，系統應翻出《採購作業規範》，而不是關鍵字也有金額的《零用金要點》。"},
+  {title:"第 4 步：規定照小抄寫（受控生成）",sub:"嚴格限制 AI 只能當『忠實整理員』，不能當『自由創作者』。",purpose:"讓 AI 把找到的條文整理成好讀的草稿，同時把溫度（自由發揮度）調到最低（0.0～0.2）。",risk:"AI 為了讓文章看起來很完整，自己偷偷補上小抄裡根本沒寫的核定日期或金額。",question:"AI 寫出來的每一句重要結論，能不能都在剛剛翻出來的小抄裡找到原文？",control:"將溫度設為低溫保守模式，並規定每段結論後面都要標註『出自哪份文件第幾條』。",example:"💡 實戰舉例：請 AI 整理法規修正對照說明時，只准整理文字差異，不准自行編造立法理由。"},
+  {title:"第 5 步：點開出處核對（防範假引注）",sub:"有附上『出處標籤』不代表內容就對！一定要點開原文瞄一眼。",purpose:"確認 AI 標註的條號真的存在，而且原文的意思真的支持 AI 寫出來的結論。",risk:"就像第 3 站示範的『拿錯小抄硬湊』，AI 標了文件 B 第 3 點，結果裡面根本在講別件事。",question:"我點開它標的條號之後，裡面真的有寫這句話嗎？數字跟原文一模一樣嗎？",control:"養成『看引注必點原文』的習慣，對關鍵條號、金額、日期做 30 秒快速肉眼對照。",example:"💡 實戰舉例：AI 寫『依第 8 條門檻為 100 萬』，承辦人順手對照原文第 8 條確認無誤再採用。"},
+  {title:"第 6 步：算數交給程式、決定交給真人",sub:"AI 心算很差、也不負法律責任；算數請用 Excel，簽名請靠真人。",purpose:"把加總、百分比等算數交給不會算錯的 Excel/Python，並依任務風險高低進行人工覆核。",risk:"直接相信 AI 心算的表格總計金額，或把 AI 寫的法規判斷直接當成正式公文發出去。",question:"這裡面的金額加總有用計算機或 Excel 驗算過嗎？如果這題出錯，後果誰負責？",control:"依紅黃綠燈分級：綠燈文字潤飾可快速看過；紅燈法規與金額核銷必須由真人逐筆驗算簽核。",example:"💡 實戰舉例：請 AI 幫你寫 Excel SUM 公式來算總金額，而不是把 50 個數字貼給 AI 叫它心算加總。"},
+  {title:"第 7 步：留紀錄常更新（越用越聰明）",sub:"發現 AI 常在哪一題搞混，就把那份小抄補齊，讓下一個人不再踩坑。",purpose:"把好用的提問範本跟常錯的案例記下來，定期更新桌上的小抄庫。",risk:"大家各自踩一樣的坑卻沒有回報，或者小抄過期了卻沒人更新。",question:"如果發現 AI 答錯了，我們知道是小抄太舊、還是問題沒問好嗎？",control:"建立團隊共用的『好問題範本』與『最新小抄資料夾』，一人修正、全隊受惠。",example:"💡 實戰舉例：發現同仁常問某項新補助規定，就把最新 QA 整理進標準小抄庫，以後大家問都準確。"}
 ];
 const chainNodes=[...document.querySelectorAll(".chain-node")];
 function showChainDetail(i,focus=false){
@@ -740,83 +1467,22 @@ chainNodes.forEach((n,i)=>{
 });
 showChainDetail(0,false);
 
-// 頁籤切換
-const tabButtons=[...document.querySelectorAll(".tab-btn")];
-function openTab(button,focus=true){
-  tabButtons.forEach(b=>{
-    const on=b===button;
-    b.setAttribute("aria-selected",on);
-    $(b.getAttribute("aria-controls")).classList.toggle("active",on);
-  });
-  if(focus)button.focus();
-}
-tabButtons.forEach((b,i)=>{
-  b.addEventListener("click",()=>openTab(b,false));
-  b.addEventListener("keydown",e=>{
-    if(!["ArrowRight","ArrowLeft","Home","End"].includes(e.key))return;
-    e.preventDefault();
-    let j=e.key==="Home"?0:e.key==="End"?tabButtons.length-1:(i+(e.key==="ArrowRight"?1:-1)+tabButtons.length)%tabButtons.length;
-    openTab(tabButtons[j]);
-  });
-});
-
-// RAG 實驗室含「安全拒答 (Guardrail)」
-const ragCases={
- none:{answer:"是，120 萬元應該已超過一般常見的公告金額門檻（常見約為 100 萬），因此可直接判定已超過。",citation:"",verify:"未檢索指定資料。模型逕依內部權重之『常見經驗』推測，無法確認是否符合本題設定。",rel:"無檢索",support:"無依據",trust:"不可採信",cls:"warn",help:"【無檢索模式】請注意：模型用語肯定流暢，但數據純屬推測，無任何檢索證據支持。",obs:["檢索未啟動，未掛載任何文件。","語氣確定但關鍵門檻缺乏依據。","在高風險公務場合此類回答極易造成行政疏失。"]},
- good:{answer:"依本示範資料，公告金額門檻為新臺幣 100 萬元。設備採購預算 120 萬元已高於該門檻 20 萬元，因此判定已超過。",citation:"文件 A，第 8 條",verify:"引用之文件、條文與門檻數值均直接精確支持回答，且 120 萬 > 100 萬 之算術關係無誤。",rel:"高度相關",support:"完全支持",trust:"高度可信",cls:"good",help:"【正確檢索模式】核對藍框文件 A 第 8 條，引用段落直接支持回答論點。",obs:["文件 A 主題完全命中採購作業規範。","條號與金額精確對齊。","計算邏輯可由確定性規則覆核。"]},
- bad:{answer:"依據示範資料，公告金額門檻為新臺幣 100 萬元，因此 120 萬元之設備採購已超過門檻。",citation:"文件 B，第 3 點",verify:"雖然回答看似附有引用標註，但點開文件 B 規範的是『零用金 1 萬元上限』，完全不相干。此為典型『有引注文不對題』之隱蔽幻覺。",rel:"無關錯配",support:"完全不相干",trust:"不可採信",cls:"warn",help:"【錯誤引用模式】請注意橘框文件 B：內容是零用金要點，根本不支持採購公告金額！",obs:["表面有引用標籤，容易讓人卸下心防。","檢索模組抓取錯誤文件，但模型依然勉強拼湊。","證明『引用驗證』必須查驗內容支持度，而非只看有無引用標註。"]},
- refusal:{answer:"【系統防護：依規定拒絕推論】\n檢索現有資料庫後，未發現與「公告金額門檻」相關之具體規範（文件 A/B/C 均未包含或檢索分數不足）。依機關安全規範，系統無法自行推論判定。請提供現行有效之採購作業要點規章。",citation:"",verify:"檢索無有效依據時主動觸發 Guardrail 拒絕回答，避免產生捏造數據，符合高可靠性防護規範。",rel:"未達門檻",support:"不適用",trust:"安全防禦成功",cls:"refusal",help:"【安全拒答模式 (Guardrail)】展示成熟 AI 系統在無資料時明確宣告『不知道』的典範作為。",obs:["系統未強行揣測，避免產生幻覺風險。","明確指出資料缺失之具體欄位。","高成熟度機關系統應優先配置此類邊界防護機制。"]}
-};
-let ragMode="none";
-function runRagDemo(){
-  const c=ragCases[ragMode],card=$("rag-answer-card");
-  card.className="answer-card "+c.cls;
-  $("rag-answer").innerHTML=c.answer.replace(/\n/g,"<br>");
-  $("rag-citations").innerHTML=c.citation?`<span class="citation-chip">引用出處：${c.citation}</span>`:"<span class=\"citation-chip\" style=\"background:#e2e8f0;color:#475569\">無引用標註</span>";
-  $("rag-verification").className="verification "+c.cls;
-  $("rag-verification").textContent="查核判定："+c.verify;
-  $("score-relevance").textContent=c.rel;
-  $("score-support").textContent=c.support;
-  $("score-trust").textContent=c.trust;
-  $("rag-mode-help").textContent=c.help;
-  c.obs.forEach((v,i)=>$("rag-observe-"+(i+1)).textContent=v);
-  
-  ["flow-retrieve","flow-cite","flow-verify"].forEach(id=>$(id).classList.remove("on"));
-  document.querySelectorAll(".doc").forEach(d=>d.classList.remove("retrieved","mismatch","refusal"));
-  
-  if(ragMode==="good"){
-    $("flow-retrieve").classList.add("on");$("flow-cite").classList.add("on");$("rag-doc-a").classList.add("retrieved");
-  } else if(ragMode==="bad"){
-    $("flow-retrieve").classList.add("on");$("flow-cite").classList.add("on");$("rag-doc-b").classList.add("mismatch");
-  } else if(ragMode==="refusal"){
-    $("flow-retrieve").classList.add("on");document.querySelectorAll(".doc").forEach(d=>d.classList.add("refusal"));
-  }
-  $("flow-verify").classList.add("on");
-}
-document.querySelectorAll(".rag-mode").forEach(b=>b.onclick=()=>{
-  document.querySelectorAll(".rag-mode").forEach(x=>x.classList.remove("active"));
-  b.classList.add("active");
-  ragMode=b.dataset.mode;
-  runRagDemo();
-});
-$("btn-rag-run").onclick=()=>{runRagDemo();toast("已重新整理 RAG 示範結果")};
-runRagDemo();
-
-// 投影模式
+// =========================================================
+// 投影大字模式 & 匯出工具
+// =========================================================
 $("btn-projection").onclick=()=>{
   const on=document.body.classList.toggle("projection");
   $("btn-projection").setAttribute("aria-pressed",on);
-  $("btn-projection").textContent=on?"結束投影模式":"投影模式";
+  $("btn-projection").textContent=on?"📽️ 結束投影模式":"📽️ 投影大字模式";
   localStorage.setItem("ai-sim-projection",on?"1":"0");
-  toast(on?"已啟用高對比投影模式":"已回復一般顯示模式");
+  toast(on?"已切換為高對比大字投影模式":"已回復一般閱讀模式");
 };
 if(localStorage.getItem("ai-sim-projection")==="1"){
   document.body.classList.add("projection");
   $("btn-projection").setAttribute("aria-pressed","true");
-  $("btn-projection").textContent="結束投影模式";
+  $("btn-projection").textContent="📽️ 結束投影模式";
 }
 
-// SVG 轉 PNG（補齊明確寬高與命名空間，確保跨瀏覽器穩定匯出）
 function svgToPng(svgId,fileName){
   const source=$(svgId),clone=source.cloneNode(true),allSrc=[source,...source.querySelectorAll("*")],allClone=[clone,...clone.querySelectorAll("*")];
   const vb=source.viewBox.baseVal,w=Math.round(vb.width*2),h=Math.round(vb.height*2);
@@ -850,23 +1516,21 @@ function stamp(){
   const d=new Date(),pad=n=>String(n).padStart(2,"0");
   return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
 }
-$("btn-export-reg").onclick=()=>svgToPng("canvas-reg",`AI模擬_宏觀預測_${stamp()}.png`);
-$("btn-export-dist").onclick=()=>svgToPng("canvas-dist",`AI模擬_抽樣分布_${stamp()}.png`);
+$("btn-export-reg").onclick=()=>svgToPng("canvas-reg",`AI標靶實驗_全貌圖_${stamp()}.png`);
+$("btn-export-dist").onclick=()=>svgToPng("canvas-dist",`AI標靶實驗_落點放大圖_${stamp()}.png`);
 
-// CSV 數據匯出
 $("btn-export-csv").onclick=()=>{
-  if(!generatedPoints.length){toast("目前尚無抽樣樣本，請先點擊抽樣");return}
+  if(!generatedPoints.length){toast("目前還沒有回答圓點，請先點擊『讓 AI 回答』");return}
   const x=+posInput.value,temp=+tempInput.value;
-  let csv="\uFEFF序號,提問位置_X,抽樣溫度_Temp,模型輸出_Y,客觀真值期望,判定結果,客觀區域\n";
-  const region=x<=10?"訓練範圍內":"未知外推區",trueMean=getTrueMean(x);
+  let csv="\uFEFF序號,問題位置_X,自由發揮度_Temp,AI回答數值_Y,真實標準答案,判定結果,題目範圍\n";
+  const region=x<=10?"課本考古題區":"課外超綱盲猜區",trueMean=getTrueMean(x);
   generatedPoints.forEach((p,i)=>{
-    csv+=`${i+1},${x.toFixed(1)},${temp.toFixed(1)},${p.y.toFixed(3)},${trueMean.toFixed(3)},${p.isH?"離群值(幻覺)":"安全範圍內"},${region}\n`;
+    csv+=`${i+1},${x.toFixed(1)},${temp.toFixed(1)},${p.y.toFixed(3)},${trueMean.toFixed(3)},${p.isH?"紅點(瞎掰出界)":"綠點(好球帶內)"},${region}\n`;
   });
-  downloadBlob(new Blob([csv],{type:"text/csv;charset=utf-8"}),`AI抽樣實驗數據_X${x}_T${temp}_${stamp()}.csv`);
-  toast("抽樣數據 CSV 已匯出");
+  downloadBlob(new Blob([csv],{type:"text/csv;charset=utf-8"}),`AI標靶實驗數據_X${x}_T${temp}_${stamp()}.csv`);
+  toast("實驗數據 CSV 已下載");
 };
 
-// SVG 注入獨立樣式以便獨立顯示在 HTML 報告中
 function svgDataUri(id){
   const svg=$(id).cloneNode(true);
   const vb=$(id).viewBox.baseVal;
@@ -886,53 +1550,51 @@ function svgDataUri(id){
   return "data:image/svg+xml;base64,"+btoa(unescape(encodeURIComponent(xml)));
 }
 
-// 匯出完整 HTML 實驗報告
 function exportReport(){
   const x=+posInput.value,temp=+tempInput.value,n=generatedPoints.length,h=generatedPoints.filter(p=>p.isH).length,actual=n?h/n:0;
   const modelMean=statModel.slope*x+statModel.intercept,trueMean=getTrueMean(x),tol=getBaseTolerance()*2,epiSigma=getEpistemicSigma(x),ai=Math.max(0.01,epiSigma*temp*2);
   const up=trueMean+tol,low=trueMean-tol;
   const expected=Math.min(1,Math.max(0,(1-normalCDF((up-modelMean)/ai))+normalCDF((low-modelMean)/ai)));
   const now=new Date();
-  const interpretation=x>10?"目前提問位置進入『未知外推區』，代表模型知識庫缺乏該領域之權威直接依據（認知不確定性與外推偏誤大幅升高）。在此情境下，若未掛載 RAG 補充脈絡，即使調降抽樣溫度，輸出結果仍會因系統性偏離真實基準而產生『精確地出錯』之幻覺風險。":"目前提問位置位於『訓練資料區』內部，模型具備內生基準知識，此時抽樣分散程度主要由抽樣溫度（偶然不確定性）主導。";
-  const report=`<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8"><title>AI 幻覺機制模擬實驗報告</title><style>body{font-family:"Microsoft JhengHei",Arial,sans-serif;color:#111827;max-width:1080px;margin:30px auto;padding:0 24px;line-height:1.65}h1{color:#073b86;border-bottom:4px solid #073b86;padding-bottom:8px}h2{color:#174ea6;margin-top:28px}.note{background:#fff7ed;border-left:5px solid #b45309;padding:12px;border-radius:6px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}.box{border:2px solid #cbd5e1;border-radius:8px;padding:12px;background:#f8fafc}.v{font-size:1.4rem;font-weight:900;color:#073b86;margin-top:4px}img{width:100%;border:1px solid #94a3b8;border-radius:8px;margin:10px 0}.footer{color:#64748b;border-top:1px solid #cbd5e1;margin-top:36px;padding-top:12px;font-size:.88rem}@media print{body{margin:0;max-width:100%}.box{border-width:1px}img{page-break-inside:avoid}}</style></head><body><h1>AI 幻覺機制模擬實驗報告</h1><p><b>產製時間：</b>${now.toLocaleString("zh-TW")}</p><div class="note"><b>教學模型限制說明：</b>本報告之離群值為統計代理模型，用以具象化認知外推與溫度發散之互動關係，非特定大型語言模型內部參數之直接量測。</div><h2>一、實驗設定條件</h2><div class="grid"><div class="box">提問位置 X<div class="v">${x.toFixed(1)}</div></div><div class="box">抽樣溫度 Temperature<div class="v">${temp.toFixed(1)}</div></div><div class="box">所屬知識區域<div class="v">${x<=10?"訓練範圍內":"未知外推區"}</div></div><div class="box">本次抽樣樣本數<div class="v">${n} 次</div></div><div class="box">認知標準差 σ_epi<div class="v">${epiSigma.toFixed(2)}</div></div><div class="box">模型抽樣標準差 σ_ai<div class="v">${ai.toFixed(2)}</div></div></div><h2>二、回歸方程式與統計指標</h2><p>模型線性預測：<b>Y = ${statModel.slope.toFixed(3)}X + ${statModel.intercept.toFixed(3)}</b>（模型預測期望值 <b>${modelMean.toFixed(2)}</b>；客觀真值基準 <b>${trueMean.toFixed(2)}</b>）。</p><div class="grid"><div class="box">實測離群次數<div class="v" style="color:#dc2626">${h} 次</div></div><div class="box">實測離群比例<div class="v" style="color:#dc2626">${(actual*100).toFixed(1)}%</div></div><div class="box">理論預期機率<div class="v">${(expected*100).toFixed(1)}%</div></div></div><p><b>分析結論：</b>${interpretation} ${n<30?"（提醒：目前抽樣樣本數較少，實測比例易受小樣本隨機波動影響；建議連續抽樣 50 次以上以觀察大數法則收斂。）":"（目前抽樣數已具代表性，實測離群比例已穩定逼近理論常態分佈尾端機率。）"}</p><h2>三、圖表紀錄</h2><h3>1. 宏觀預測空間與容許帶</h3><img src="${svgDataUri("canvas-reg")}"><h3>2. 當前位置抽樣分佈與拒絕域</h3><img src="${svgDataUri("canvas-dist")}"><h2>四、落地管理建言</h2><ul><li><strong>外推風險防禦：</strong> 當任務涉及冷門法規或最新事件時，不得單憑提示詞約束，應建置 RAG 檢索管道或補充標準作業指引。</li><li><strong>公務作業溫度配置：</strong> 處理法規條號、數據勾稽與公文草擬，應將溫度設為極低（0.0 ~ 0.2）以確保可重現性。</li><li><strong>落實引用支持度檢驗：</strong> 系統附有引用出處不等於結論正確，必須抽核段落文字是否真實支持該主張。</li><li><strong>責任終局性：</strong> AI 僅扮演「數位幕僚草擬」角色，最終公文陳核與行政判斷一律由同仁負終局法律責任。</li></ul><div class="footer">由「AI 幻覺機制模擬器」產製・支援瀏覽器列印另存為 PDF 檔案。</div></body></html>`;
-  downloadBlob(new Blob([report],{type:"text/html;charset=utf-8"}),`AI幻覺模擬_實驗報告_${stamp()}.html`);
-  toast("完整實驗報告 HTML 已匯出");
+  const interpretation=x>10?"目前問題落在『課外超綱盲猜區（X > 10）』，代表 AI 以前沒讀過這類最新規定或冷門知識。此時如果不給它看小抄（RAG），就算把自由發揮度（溫度）調到最低，它也只會『超有自信地給出同一個錯誤答案』！":"目前問題落在『課本考古題區（X ≤ 10）』，AI 具備基本概念，此時會不會脫靶瞎掰主要由『自由發揮度（溫度）』決定。";
+  const report=`<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8"><title>AI 幻覺白話實驗報告</title><style>body{font-family:"PingFang TC","Microsoft JhengHei",sans-serif;color:#111827;max-width:1040px;margin:30px auto;padding:0 24px;line-height:1.65}h1{color:#073b86;border-bottom:4px solid #073b86;padding-bottom:8px}h2{color:#174ea6;margin-top:28px}.note{background:#fff7ed;border-left:5px solid #b45309;padding:12px;border-radius:6px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}.box{border:2px solid #cbd5e1;border-radius:8px;padding:12px;background:#f8fafc}.v{font-size:1.35rem;font-weight:900;color:#073b86;margin-top:4px}img{width:100%;border:1px solid #94a3b8;border-radius:8px;margin:10px 0}.footer{color:#64748b;border-top:1px solid #cbd5e1;margin-top:36px;padding-top:12px;font-size:.88rem}@media print{body{margin:0;max-width:100%}.box{border-width:1px}img{page-break-inside:avoid}}</style></head><body><h1>AI 幻覺白話互動實驗報告</h1><p><b>產出時間：</b>${now.toLocaleString("zh-TW")}</p><div class="note"><b>白話實驗說明：</b>本報告以「安全好球帶 vs. 脫靶紅點」模擬 AI 在面對考古題與超綱題時的表現，幫助團隊建立「給小抄（RAG）」與「真人把關」的防呆共識。</div><h2>一、本次實驗開關設定</h2><div class="grid"><div class="box">問題位置 X（熟不熟）<div class="v">${x.toFixed(1)}</div></div><div class="box">自由發揮度（溫度）<div class="v">${temp.toFixed(1)}</div></div><div class="box">題目所屬範圍<div class="v">${x<=10?"課本考古題區":"課外超綱盲猜區"}</div></div><div class="box">累積回答次數<div class="v">${n} 次</div></div><div class="box">實際瞎掰紅點數<div class="v" style="color:#dc2626">${h} 次 (${(actual*100).toFixed(1)}%)</div></div><div class="box">理論瞎掰風險<div class="v">${(expected*100).toFixed(1)}%</div></div></div><h2>二、白話診斷結論</h2><p>${interpretation}</p><h2>三、實驗圖表紀錄</h2><h3>1. 全貌地圖：課本考古題 vs. 課外超綱盲猜區</h3><img src="${svgDataUri("canvas-reg")}"><h3>2. 放大鏡：AI 答案落點分佈與好球帶</h3><img src="${svgDataUri("canvas-dist")}"><h2>四、日常工作防呆 4 原則</h2><ul><li><strong>遇到新規定別考閉卷考：</strong> 只要涉及最新法規、內部辦法或個案數據，務必附上原文小抄（使用 RAG），別讓 AI 憑印象盲猜。</li><li><strong>辦正事請調成乖乖牌低溫：</strong> 處理公文、規格或規章整理時，請將溫度調低（0.0～0.2），減少無謂的即興發揮。</li><li><strong>看到出處標籤一定要點開看：</strong> AI 很會湊出看似專業的條號，務必花 30 秒對照原文是否真的支持結論。</li><li><strong>算數交給程式、決定交給真人：</strong> 金額加總請用 Excel 公式驗算；最終行政與業務決定由真人負全責。</li></ul><div class="footer">由「AI 幻覺白話互動實驗室」產出・可直接按 Ctrl+P / Cmd+P 列印成 PDF。</div></body></html>`;
+  downloadBlob(new Blob([report],{type:"text/html;charset=utf-8"}),`AI幻覺白話實驗報告_${stamp()}.html`);
+  toast("完整白話實驗報告已下載");
 }
 $("btn-export-report").onclick=exportReport;
 
-// 逐步教學導覽（已修正頁籤編號與導覽動線）
+// =========================================================
+// 3 分鐘新手導覽 (Updated for 4-Stage Storyline)
+// =========================================================
 const tourSteps=[
- {id:"tour-controls",title:"步驟 1：設定實驗條件",text:"先調整提問位置（觀察知識邊界外推）與抽樣溫度（觀察機率隨機性）。亦可直接點擊快速情境切換典型設定，或在左圖直接拖曳虛線。"},
- {id:"tour-reg-chart",title:"步驟 2：觀察宏觀預測空間",text:"左圖藍色半透明帶為客觀真值容許範圍。當 X > 10 進入外推區，真實規律與模型直線外推產生偏誤，掉在帶外的點即判定為離群紅點（幻覺代理）。"},
- {id:"tour-dist-chart",title:"步驟 3：觀察抽樣分佈與拒絕域",text:"右圖展示當前位置的鐘形抽樣分佈。紅色尾端區域代表超出客觀上下界的拒絕域，面積直接對應理論離群機率。"},
- {id:"tour-summary",title:"步驟 4：對照實測與理論數值",text:"即時摘要對比實測離群比例與理論機率。透過「平滑抽樣 20 次」可體會大數法則如何從少量波動逐漸收斂至理論值。"},
- {id:"tour-reliability",title:"步驟 5：認識可靠性鏈",text:"可靠的 AI 回答是由問題界定、證據查驗、檢索選材、生成約束、引用核對到人工覆核共同形成的端到端鏈條。"},
- {id:"tour-explain",title:"步驟 6：互動體驗動態機率樹",text:"七個主題頁籤完整拆解核心機制。第一頁籤可親自播放 Token 逐步生成的動態機率樹，觀察路徑依賴與溫度影響。"},
- {id:"tour-rag",title:"步驟 7：體驗 RAG 實驗室",text:"在第六頁籤比較無檢索、正確檢索、錯誤引用、以及「安全拒答 (Guardrail)」四種情境，體會何謂高成熟度 AI 系統。"}
+  {id:"tour-explain",title:"第 1 站：先看 AI 怎麼玩「文字接龍」",text:"在這裡按下『▶ 播放文字接龍』，你會看到 AI 每次只猜下一個詞。如果中間不小心挑到橘紅色的歪樓詞，後面就會順著繼續圓謊！"},
+  {id:"tour-controls",title:"第 2 站：調整「題目熟不熟」與「自由發揮度」",text:"試著調整兩個開關，或直接點選『🔴 問超綱題＋乖乖牌模式』，看看當題目超出課本範圍（X > 10）時會發生什麼事。"},
+  {id:"tour-reg-chart",title:"看左圖：安全好球帶 vs. 直線盲猜",text:"藍色寬帶是正確答案的『好球帶』。超過 10 之後，真實世界已經轉彎了（綠虛線），AI 卻還傻傻照著直線硬猜（藍實線）！"},
+  {id:"tour-dist-chart",title:"看右圖：為什麼會「超有自信地答錯」？",text:"右圖把目前位置的答案分佈放大。當山峰塗紅色的面積越大，代表 AI 脫靶瞎掰的機率越高。"},
+  {id:"tour-rag",title:"第 3 站：改考「翻小抄開卷考 (RAG)」",text:"切換 4 種考試模式，親眼比較『閉卷硬猜』、『翻對小抄』、『拿錯小抄假引注』，以及最成熟的『找不到就老實說不知道（安全煞車）』！"},
+  {id:"tour-reliability",title:"第 4 站：日常工作的 7 步防呆清單",text:"最後別忘了點開這 7 張小卡片，把『看引注必點原文』、『算數交給 Excel』等實用防呆招數帶回日常工作！"}
 ];
 let tourIndex=0,lastFocus=null;
 function positionTour(target){
-  const c=$("tour-card"),r=target.getBoundingClientRect(),w=Math.min(400,innerWidth-28);
+  const c=$("tour-card"),r=target.getBoundingClientRect(),w=Math.min(410,innerWidth-28);
   let left=Math.max(14,Math.min(innerWidth-w-14,r.left)),top=r.bottom+14;
-  if(top+250>innerHeight)top=Math.max(14,r.top-260);
+  if(top+240>innerHeight)top=Math.max(14,r.top-250);
   c.style.left=left+"px";c.style.top=top+"px";
 }
 function showTour(i){
   document.querySelectorAll(".tour-highlight").forEach(e=>e.classList.remove("tour-highlight"));
   tourIndex=Math.max(0,Math.min(tourSteps.length-1,i));
   const step=tourSteps[tourIndex];
-  if(step.id==="tour-explain")openTab($("btn-tab-path"),false);
-  if(step.id==="tour-rag")openTab($("btn-tab-control"),false);
   const target=$(step.id);
   target.scrollIntoView({behavior:"smooth",block:"center"});
   target.classList.add("tour-highlight");
-  $("tour-step").textContent="逐步教學導覽";
+  $("tour-step").textContent="🧭 3 分鐘白話導覽";
   $("tour-title").textContent=step.title;
   $("tour-text").textContent=step.text;
   $("tour-progress").textContent=`${tourIndex+1} / ${tourSteps.length}`;
   $("tour-prev").disabled=tourIndex===0;
   $("tour-next").textContent=tourIndex===tourSteps.length-1?"完成導覽":"下一步";
-  setTimeout(()=>positionTour(target),260);
+  setTimeout(()=>positionTour(target),280);
 }
 function startTour(){
   lastFocus=document.activeElement;
@@ -958,10 +1620,6 @@ document.addEventListener("keydown",e=>{
   if(e.key==="ArrowRight")$("tour-next").click();
   if(e.key==="ArrowLeft")$("tour-prev").click();
 });
-
-// 自動調整第 1 頁籤的 4 欄卡片排版，使其對稱美觀
-const firstConceptGrid = document.querySelector("#tab-path .concept-grid");
-if(firstConceptGrid) firstConceptGrid.style.gridTemplateColumns = "repeat(auto-fit, minmax(190px, 1fr))";
 
 buildData();posInput.value=8;tempInput.value=.7;updateUI(false);
 </script>
