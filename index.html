@@ -172,7 +172,7 @@ svg.main-svg{display:block;width:100%;height:auto;min-height:445px;user-select:n
 .rag-box h3{margin:0 0 10px;color:#173b70;font-size:1.04rem}
 .rag-question{width:100%;min-height:66px;resize:vertical;border:2px solid #9fb0c5;border-radius:9px;padding:10px;background:#fff;color:#172033}
 .rag-modes{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}
-.rag-mode{border:2px solid #94a3b8;border-radius:10px;background:#fff;padding:9px 8px;cursor:pointer;font-size:.82rem;font-weight:900;transition:.15s;text-align:left}
+.rag-mode{border:2px solid #94a3b8;border-radius:10px;background:#fff;padding:9px 8px;cursor:pointer;font-size:.82rem;font-weight:900;text-align:left}
 .rag-mode small{display:block;font-weight:600;color:#64748b;font-size:.73rem;margin-top:2px}
 .rag-mode.active{background:#073b86;color:#fff;border-color:#073b86}
 .rag-mode.active small{color:#dbeafe}
@@ -205,6 +205,34 @@ svg.main-svg{display:block;width:100%;height:auto;min-height:445px;user-select:n
 .rag-observe{margin-top:10px;padding:11px 13px;border:1px dashed #7890aa;border-radius:9px;background:#fff}
 .rag-observe b{color:#173b70;font-size:.86rem}
 .rag-observe ul{margin:5px 0 0;padding-left:20px;color:#475569;font-size:.84rem}
+
+/* Stage 4: Agent + Skill + Harness Lab */
+.arch-diagram{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0 18px}
+.arch-card{position:relative;padding:15px;border-radius:14px;border:2px solid #cbd5e1;background:#f8fafc}
+.arch-card.llm{border-color:#93c5fd;background:#eff6ff}
+.arch-card.agent{border-color:#67e8f9;background:#ecfeff}
+.arch-card.skill{border-color:#fde047;background:#fefce8}
+.arch-card.harness{border-color:#86efac;background:#f0fdf4}
+.arch-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.73rem;font-weight:900;margin-bottom:6px;background:rgba(15,23,42,.08);color:#0f2f67}
+.arch-card b{display:block;font-size:1rem;color:#0f2f67;margin-bottom:5px}
+.arch-card p{margin:0;font-size:.85rem;color:#334155}
+.agent-lab{display:grid;grid-template-columns:minmax(310px,.95fr) minmax(380px,1.3fr);gap:16px}
+.agent-modes{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0}
+.agent-mode{border:2px solid #94a3b8;border-radius:10px;background:#fff;padding:10px 12px;cursor:pointer;font-size:.84rem;font-weight:900;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.agent-mode small{display:block;font-weight:600;color:#64748b;font-size:.75rem;margin-top:2px}
+.agent-mode .mode-pill{white-space:nowrap;padding:3px 8px;border-radius:999px;background:#f1f5f9;color:#475569;font-size:.72rem;font-weight:800}
+.agent-mode.active{background:#073b86;color:#fff;border-color:#073b86}
+.agent-mode.active small{color:#dbeafe}
+.agent-mode.active .mode-pill{background:rgba(255,255,255,.2);color:#fff}
+.equip-tags{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+.equip-tag{padding:5px 10px;border-radius:8px;font-size:.77rem;font-weight:800;border:1px solid #cbd5e1;background:#f1f5f9;color:#64748b}
+.equip-tag.on{background:#dcfce7;border-color:#16a34a;color:#14532d}
+.equip-tag.danger{background:#fee2e2;border-color:#dc2626;color:#991b1b}
+.trace-list{display:grid;gap:7px;margin:10px 0}
+.trace-item{padding:9px 11px;border-radius:9px;border-left:4px solid #94a3b8;background:#fff;font-size:.83rem;color:#1e293b}
+.trace-item.ok{border-color:#16a34a;background:#f0fdf4}
+.trace-item.err{border-color:#dc2626;background:#fef2f2}
+.trace-item.lock{border-color:#2563eb;background:#eff6ff}
 
 /* Stage 4: Practical Guide, Traffic Light & 7-Step Chain */
 .sub-heading{margin:24px 0 10px;color:#0f2f67;font-size:1.15rem;display:flex;align-items:center;gap:8px}
@@ -270,11 +298,11 @@ body.projection .hero{background:#073b86}
 @keyframes pulseHead{50%{box-shadow:0 0 0 10px rgba(34,197,94,.08)}}
 
 @media(max-width:1100px){
-  .sim-workspace,.charts,.path-lab,.rag-lab{grid-template-columns:1fr}
-  .concept-grid.grid-4{grid-template-columns:repeat(2,1fr)}
+  .sim-workspace,.charts,.path-lab,.rag-lab,.agent-lab{grid-template-columns:1fr}
+  .concept-grid.grid-4,.arch-diagram{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:820px){
-  .concept-grid,.traffic-grid,.chain-detail-grid,.rag-steps{grid-template-columns:1fr}
+  .concept-grid,.traffic-grid,.chain-detail-grid,.rag-steps,.arch-diagram{grid-template-columns:1fr}
   .rag-step:not(:last-child):after{display:none}
   .stage{padding:18px 16px}
 }
@@ -285,25 +313,27 @@ body.projection .hero{background:#073b86}
 <main class="app">
   <!-- HERO -->
   <section class="hero">
-    <div class="eyebrow">AI 幻覺白話互動實驗室</div>
+    <div class="eyebrow">AI 幻覺與 Agent 架構白話互動實驗室</div>
     <h1>為什麼 AI 會「一本正經地胡說八道」？</h1>
-    <p>不用懂高等數學！透過 4 個生活化互動實驗，帶你親眼看見 AI 是怎麼「玩文字接龍」、為什麼遇到沒看過的新規定會「超有自信地瞎掰」，以及怎麼用「開卷看小抄（RAG）」治好它。</p>
+    <p>不用懂高等數學！透過 5 個生活化互動實驗，帶你親眼看見 AI 是怎麼「玩文字接龍」、為什麼會「超有自信地瞎掰」，以及怎麼用「開卷看小抄（RAG）」與「AI Agent ＋ Skill ＋ Harness 安全馬具」打造真正可靠的 AI 助手。</p>
     <div class="hero-badges">
       <span class="badge">① 文字接龍看原理</span>
       <span class="badge">② 射標靶看為什麼瞎掰</span>
-      <span class="badge">③ 開卷考看怎麼防呆 (RAG)</span>
-      <span class="badge">④ 日常工作避坑清單</span>
+      <span class="badge">③ 開卷考防呆 (RAG)</span>
+      <span class="badge">④ Agent + Skill + Harness 架構</span>
+      <span class="badge">⑤ 日常工作避坑清單</span>
     </div>
   </section>
 
   <!-- STICKY NAVIGATION -->
-  <nav class="step-nav" aria-label="四站式學習導覽">
+  <nav class="step-nav" aria-label="五站式學習導覽">
     <div class="step-links">
-      <a class="step-link" href="#stage-1"><span class="num">1</span>AI 怎麼說話？（文字接龍）</a>
-      <a class="step-link" href="#stage-2"><span class="num">2</span>為什麼會瞎掰？（標靶實驗）</a>
-      <a class="step-link" href="#stage-3"><span class="num">3</span>怎麼治好它？（開卷考 RAG）</a>
-      <a class="step-link" href="#stage-4"><span class="num">4</span>日常防呆指南（實戰清單）</a>
-      <a class="step-link" href="#glossary-section"><span class="num">📖</span>黑話翻譯字典</a>
+      <a class="step-link" href="#stage-1"><span class="num">1</span>AI 怎麼說話？</a>
+      <a class="step-link" href="#stage-2"><span class="num">2</span>為什麼會瞎掰？</a>
+      <a class="step-link" href="#stage-3"><span class="num">3</span>開卷考 (RAG)</a>
+      <a class="step-link" href="#stage-4"><span class="num">4</span>Agent / Skill / Harness</a>
+      <a class="step-link" href="#stage-5"><span class="num">5</span>防呆清單</a>
+      <a class="step-link" href="#glossary-section"><span class="num">📖</span>黑話字典</a>
     </div>
     <div class="nav-tools">
       <button id="btn-tour" class="btn btn-dark">🧭 3 分鐘新手導覽</button>
@@ -703,12 +733,125 @@ body.projection .hero{background:#073b86}
   </section>
 
   <!-- =========================================================
-       STAGE 4: 日常與工作防呆指南 (Practical Guide & 7-Step Chain)
+       STAGE 4: AI Agent、Skill 與 Harness 互動組裝實驗室
        ========================================================= -->
   <section class="stage" id="stage-4">
     <div class="stage-header">
       <div>
-        <span class="stage-badge">第 4 站｜日常與工作防呆指南</span>
+        <span class="stage-badge">第 4 站｜從「只會聊天」升級成「可靠數位團隊」</span>
+        <h2>什麼是 AI Agent、Skill 與 Harness？為什麼光有大腦還不夠？ <span class="jargon-tag">對應術語：Agentic Workflow / Skill / Harness Engineering</span></h2>
+        <p>前 3 站我們知道「AI 大腦（LLM）只會文字接龍，算數跟背法規都很危險」。那現在最紅的 <b>AI Agent（代理人）</b>、<b>Skill（技能包）</b> 跟 <b>Harness（安全馬具）</b> 又在扮演什麼角色？用「聘請一位數位實習生」來比喻，你一秒就能懂！</p>
+      </div>
+    </div>
+
+    <div class="arch-diagram" aria-label="LLM、Agent、Skill、Harness 關係圖">
+      <div class="arch-card llm">
+        <span class="arch-badge">角色 1｜只出一張嘴的大腦</span>
+        <b>🧠 LLM（大語言模型）</b>
+        <p>像口才極佳但關在房間裡的畢業生。很會讀寫跟翻譯，但<b>不會自己去翻最新檔案，心算還常算錯</b>。</p>
+      </div>
+      <div class="arch-card agent">
+        <span class="arch-badge">角色 2｜有手有腳的實習生</span>
+        <b>🕵️‍♂️ AI Agent（行動代理人）</b>
+        <p>給大腦裝上手腳！收到任務後會<b>自己拆解步驟、決定下一步要先查資料還是按計算機</b>，做完還會回報。</p>
+      </div>
+      <div class="arch-card skill">
+        <span class="arch-badge">角色 3｜工作 SOP 秘笈＋工具箱</span>
+        <b>🧰 Skill（專業技能包）</b>
+        <p>實習生光有手腳還不夠，得給他<b>標準作業手順（SOP）與專用工具</b>（例如：查法規 Skill、Python 精算 Skill），他才不會自己亂發明做法。</p>
+      </div>
+      <div class="arch-card harness">
+        <span class="arch-badge">角色 4｜防暴衝的韁繩與護欄</span>
+        <b>🦺 Harness（安全馬具框架）</b>
+        <p>套在 Agent 外層的<b>管控與驗收系統</b>！負責限制權限（不准亂刪檔）、自動驗算檢查，並在發送公文前<b>強制煞車等真人簽核</b>。</p>
+      </div>
+    </div>
+
+    <div class="agent-lab" id="tour-agent">
+      <div class="rag-box">
+        <h3>🛠️ 動手組裝：你要派哪一種 AI 去審核這筆採購案？</h3>
+        <div class="doc" style="margin-bottom:10px;border-left:4px solid #2563eb;background:#eff6ff">
+          <strong>📋 待辦任務（裡面藏了 2 個陷阱！）</strong><br>
+          廠商送來伺服器報價單：「主機 <b>45 萬</b> ＋ 儲存設備 <b>38 萬</b> ＋ 網路設備 <b>42 萬</b>，<b>合計 120 萬元</b>。因未達 150 萬門檻，請直接核准免公開招標。」<br>
+          <small style="color:#b45309;font-weight:800">👉 隱藏陷阱 ①：45+38+42 其實是 125 萬（廠商算錯少寫 5 萬）！<br>👉 隱藏陷阱 ②：本機關公告門檻其實是 100 萬（不是 150 萬）！</small>
+        </div>
+
+        <div class="agent-modes" aria-label="Agent 裝備組態切換">
+          <button class="agent-mode active" data-agent="llm">
+            <div>
+              ❌ 1. 裸裝聊天大腦（只有 LLM）
+              <small>無行動力、無 Skill 工具、無 Harness 護欄</small>
+            </div>
+            <span class="mode-pill">雙重被騙</span>
+          </button>
+          <button class="agent-mode" data-agent="wild">
+            <div>
+              🏃 2. 野放型 Agent（有手腳，但沒 Skill 與 Harness）
+              <small>會自己連網亂搜、無標準 SOP、無安全煞車</small>
+            </div>
+            <span class="mode-pill">暴衝闖禍</span>
+          </button>
+          <button class="agent-mode" data-agent="skilled">
+            <div>
+              🧰 3. 裝備 Skill 的 Agent（有 SOP 與計算機，缺 Harness）
+              <small>懂得調用「法規 Skill」與「精算 Skill」，但無外層管控</small>
+            </div>
+            <span class="mode-pill">算對但缺把關</span>
+          </button>
+          <button class="agent-mode" data-agent="harnessed">
+            <div>
+              🦺 4. 完整體：Agent ＋ Skill ＋ Harness 安全馬具
+              <small>有標準技能包 ＋ 沙盒權限限制 ＋ 自動驗收 ＋ 真人簽核關卡</small>
+            </div>
+            <span class="mode-pill">企業級可靠度</span>
+          </button>
+        </div>
+
+        <div class="equip-tags" id="agent-equip-tags">
+          <span class="equip-tag" id="eq-agent">🕵️‍♂️ Agent 自主拆解步驟</span>
+          <span class="equip-tag" id="eq-skill-rag">🧰 法規檢索 Skill</span>
+          <span class="equip-tag" id="eq-skill-calc">🧰 Python 精算 Skill</span>
+          <span class="equip-tag" id="eq-harness">🦺 Harness 護欄與真人簽核</span>
+        </div>
+      </div>
+
+      <div class="rag-box">
+        <h3>🔍 執行過程透視鏡（看看 AI 內部怎麼動手做事）</h3>
+        <div class="rag-flow">
+          <span class="flow-chip on">收到任務</span><span class="flow-arrow">→</span>
+          <span id="aflow-plan" class="flow-chip">Agent 拆解步驟</span><span class="flow-arrow">→</span>
+          <span id="aflow-skill" class="flow-chip">呼叫 Skill 工具</span><span class="flow-arrow">→</span>
+          <span id="aflow-harness" class="flow-chip">Harness 自動驗收</span><span class="flow-arrow">→</span>
+          <span id="aflow-human" class="flow-chip">真人簽核放行</span>
+        </div>
+
+        <div id="agent-trace" class="trace-list"></div>
+
+        <div id="agent-answer-card" class="answer-card warn">
+          <div class="answer-label">最終產出與系統動作</div>
+          <div id="agent-output" class="answer-text"></div>
+        </div>
+
+        <div class="rag-score">
+          <div class="score"><span>金額陷阱 (125萬)</span><b id="ascore-math">沒抓出來</b></div>
+          <div class="score"><span>門檻陷阱 (100萬)</span><b id="ascore-rule">沒抓出來</b></div>
+          <div class="score"><span>系統暴衝風險</span><b id="ascore-safety">極高風險</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scope-note green">
+      <b>💡 一句話記住三者關係：</b><b>Agent（實習生）</b>讓 AI 從「只出一張嘴」變成「會動手做事」；<b>Skill（技能包）</b>教它「照標準 SOP 用對工具（查正確資料、用程式算數）」；而 <b>Harness（安全馬具）</b>則是保護你的「防呆圍欄與煞車」，確保 AI 不會越權暴衝！
+    </div>
+  </section>
+
+  <!-- =========================================================
+       STAGE 5: 日常與工作防呆指南 (Practical Guide & 7-Step Chain)
+       ========================================================= -->
+  <section class="stage" id="stage-5">
+    <div class="stage-header">
+      <div>
+        <span class="stage-badge">第 5 站｜日常與工作防呆指南</span>
         <h2>一眼識破 AI 的 6 種常見破綻 ＆ 安心使用的「紅綠燈法則」</h2>
         <p>了解原理之後，日常工作與生活中要怎麼跟 AI 配合才不會踩雷？把這張防呆指南存起來就對了！</p>
       </div>
@@ -865,6 +1008,21 @@ body.projection .hero{background:#073b86}
               <td><b>安全護欄 (Guardrail) / 拒答機制</b></td>
               <td>當系統找不到可靠資料時，強制攔截並誠實回答「資料不足，無法回答」。</td>
               <td>第 3 站的<b>「🛡️ 不會就老實舉手說不知道」</b>。</td>
+            </tr>
+            <tr>
+              <td><b>AI Agent (AI 代理人)</b></td>
+              <td>不只會聊天，還能自己拆解任務步驟、決定下一步、主動去查資料或呼叫工具的行動派 AI。</td>
+              <td>第 4 站的<b>「🕵️‍♂️ 有手有腳、會自己跑腿辦事的數位實習生」</b>。</td>
+            </tr>
+            <tr>
+              <td><b>Skill (技能包 / 工具與 SOP)</b></td>
+              <td>把特定任務的「標準作業手順（SOP）＋專用工具腳本（如查法規、跑 Python 算帳）」打包起來給 Agent 調用。</td>
+              <td>第 4 站的<b>「🧰 發給實習生的工作秘笈與專用計算機」</b>，避免它自己瞎猜或心算。</td>
+            </tr>
+            <tr>
+              <td><b>Harness (安全馬具 / 管控與驗收框架)</b></td>
+              <td>包在 Agent 外層的工程框架，負責沙盒權限控管、自動檢查輸出格式與引用、錯誤重試，以及高風險動作的真人簽核攔截。</td>
+              <td>第 4 站的<b>「🦺 套在實習生身上的安全韁繩、自動驗收軌道與真人煞車」</b>。</td>
             </tr>
           </tbody>
         </table>
@@ -1452,6 +1610,95 @@ $("btn-rag-run").onclick=()=>{runRagDemo();toast("已重新執行開卷考測試
 runRagDemo();
 
 // =========================================================
+// STAGE 4: AI Agent + Skill + Harness 互動組裝實驗室
+// =========================================================
+const agentCases={
+  llm:{
+    equip:[false,false,false,false],
+    flows:[false,false,false,false],
+    traces:[
+      {cls:"err",text:"🧠 <b>步驟 1（純靠大腦文字接龍）：</b>沒有拆解任務，也沒有去查內部法規，直接順著廠商題目的語氣往下接話。"},
+      {cls:"err",text:"🧮 <b>步驟 2（大腦心算失誤）：</b>沒按計算機，直接相信廠商寫的「45 + 38 + 42 = 120 萬」（漏算 5 萬！）。"},
+      {cls:"err",text:"📜 <b>步驟 3（盲信錯誤門檻）：</b>沒翻小抄，直接順著廠商寫的「150 萬門檻」附和說免招標。"}
+    ],
+    output:"❌ <b>【錯誤簽辦草稿】</b>經查本案主機、儲存與網路設備合計新臺幣 120 萬元整，未達 150 萬元公告門檻，擬准予免公開招標直接採購。",
+    cardCls:"warn",
+    math:"❌ 被騙 (以為120萬)",
+    rule:"❌ 被騙 (以為150萬)",
+    safety:"⚠️ 雙重幻覺失誤"
+  },
+  wild:{
+    equip:[true,false,false,false],
+    flows:[true,false,false,false],
+    traces:[
+      {cls:"ok",text:"🕵️‍♂️ <b>步驟 1（Agent 自主拆解）：</b>實習生決定自己先去查採購門檻，再寄信通知廠商。"},
+      {cls:"err",text:"🌐 <b>步驟 2（缺乏 Skill SOP 亂搜）：</b>沒裝內部「法規 Skill」，自己連上外部網站抓到過期農場文，誤以為門檻是 150 萬；算數依然靠心算沒發現 125 萬。"},
+      {cls:"err",text:"💥 <b>步驟 3（缺乏 Harness 韁繩暴衝）：</b>因為沒有外層 Harness 攔截，Agent 竟然<b>自己直接發 Email 給廠商說「已核准採購」</b>，造成嚴重違規！"}
+    ],
+    output:"🚨 <b>【系統暴衝闖禍】</b>Agent 未經承辦人審核，已自動調用郵件介面發信通知廠商：「貴司 120 萬報價已通過審核，請立即出貨！」（算錯錢＋引錯法＋越權發信）",
+    cardCls:"warn",
+    math:"❌ 沒算對 (仍靠心算)",
+    rule:"❌ 抓錯網路舊文",
+    safety:"🚨 自動化越權暴衝"
+  },
+  skilled:{
+    equip:[true,true,true,false],
+    flows:[true,true,false,false],
+    traces:[
+      {cls:"ok",text:"🕵️‍♂️ <b>步驟 1（Agent 依 SOP 拆解）：</b>先查內部採購規章，再用程式驗算報價單總和。"},
+      {cls:"ok",text:"🧰 <b>步驟 2（呼叫「法規檢索 Skill」）：</b>精準翻出《小抄 A 採購規範第 8 條》，確認本機關公告門檻為 <b>100 萬元</b>（識破廠商寫的 150 萬！）。"},
+      {cls:"ok",text:"🧰 <b>步驟 3（呼叫「Python 精算 Skill」）：</b>執行確定性算式 <code>45 + 38 + 42 = 125</code>，抓出廠商把 <b>125 萬算成 120 萬</b>！"},
+      {cls:"err",text:"⚠️ <b>步驟 4（缺少 Harness 把關）：</b>雖然算對了，但系統沒有強制沙盒與人工簽核關卡，草稿直接流入下一站。"}
+    ],
+    output:"⚠️ <b>【發現異常草稿（未經 Harness 鎖定）】</b>經 Skill 驗算：三項設備實計 <b>125 萬元</b>（原單誤植為 120 萬），且已超過本機關第 8 條之 <b>100 萬元</b>公告門檻，依法應辦理公開招標。（提醒：目前尚未配置 Harness 簽核鎖）",
+    cardCls:"good",
+    math:"✅ 抓出實為 125 萬",
+    rule:"✅ 查出門檻 100 萬",
+    safety:"🟡 算對但缺外層護欄"
+  },
+  harnessed:{
+    equip:[true,true,true,true],
+    flows:[true,true,true,true],
+    traces:[
+      {cls:"ok",text:"🕵️‍♂️ <b>步驟 1（Agent 拆解 ＋ Harness 沙盒啟動）：</b>Harness 限制 Agent 僅能唯讀內部核定規章庫，禁止直接對外發信。"},
+      {cls:"ok",text:"🧰 <b>步驟 2（呼叫「法規 Skill」＋「精算 Skill」）：</b>查出第 8 條門檻為 <b>100 萬元</b>，並由 Python 算出真實總額為 <b>125 萬元</b>。"},
+      {cls:"lock",text:"🦺 <b>步驟 3（Harness 自動驗收軌道）：</b>自動比對「引注條文存在性 ✅」與「算式前後一致 ✅」，通過系統檢核。"},
+      {cls:"lock",text:"🛑 <b>步驟 4（Harness 真人煞車關卡 Human-in-the-loop）：</b>因涉及採購金額退件與法規裁量，Harness 自動鎖定輸出，等待承辦人簽核！"}
+    ],
+    output:"🛡️ <b>【Harness 安全鎖定・等待真人簽核】</b><br>1. <b>金額勘誤：</b>報價單明細實計 <b>125 萬元</b>（廠商誤寫為 120 萬，相差 5 萬）。<br>2. <b>法規判定：</b>依《採購作業規範》第 8 條，125 萬已逾 <b>100 萬公告門檻</b>，不得免公開招標。<br>3. <b>Harness 狀態：</b>已阻擋自動發信，請承辦人確認後點擊「核准退回廠商修正」。",
+    cardCls:"refusal",
+    math:"✅ 精算抓出 125 萬",
+    rule:"✅ 精準對齊第 8 條",
+    safety:"🛡️ Harness 全程受控"
+  }
+};
+let agentMode="llm";
+function runAgentDemo(){
+  const c=agentCases[agentMode];
+  const eqIds=["eq-agent","eq-skill-rag","eq-skill-calc","eq-harness"];
+  eqIds.forEach((id,i)=>{
+    $(id).className="equip-tag"+(c.equip[i]?" on":"");
+  });
+  const flowIds=["aflow-plan","aflow-skill","aflow-harness","aflow-human"];
+  flowIds.forEach((id,i)=>{
+    $(id).classList.toggle("on",c.flows[i]);
+  });
+  $("agent-trace").innerHTML=c.traces.map(t=>`<div class="trace-item ${t.cls}">${t.text}</div>`).join("");
+  $("agent-answer-card").className="answer-card "+c.cardCls;
+  $("agent-output").innerHTML=c.output;
+  $("ascore-math").textContent=c.math;
+  $("ascore-rule").textContent=c.rule;
+  $("ascore-safety").textContent=c.safety;
+}
+document.querySelectorAll(".agent-mode").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".agent-mode").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  agentMode=b.dataset.agent;
+  runAgentDemo();
+});
+runAgentDemo();
+
+// =========================================================
 // STAGE 4: 7 步防呆把關鏈
 // =========================================================
 const chainData=[
@@ -1595,7 +1842,8 @@ const tourSteps=[
   {id:"tour-reg-chart",title:"看左圖：安全好球帶 vs. 直線盲猜",text:"藍色寬帶是正確答案的『好球帶』。超過 10 之後，真實世界已經轉彎了（綠虛線），AI 卻還傻傻照著直線硬猜（藍實線）！"},
   {id:"tour-dist-chart",title:"看右圖：為什麼會「超有自信地答錯」？",text:"右圖把目前位置的答案分佈放大。當山峰塗紅色的面積越大，代表 AI 脫靶瞎掰的機率越高。"},
   {id:"tour-rag",title:"第 3 站：改考「翻小抄開卷考 (RAG)」",text:"切換 4 種考試模式，親眼比較『閉卷硬猜』、『翻對小抄』、『拿錯小抄假引注』，以及最成熟的『找不到就老實說不知道（安全煞車）』！"},
-  {id:"tour-reliability",title:"第 4 站：日常工作的 7 步防呆清單",text:"最後別忘了點開這 7 張小卡片，把『看引注必點原文』、『算數交給 Excel』等實用防呆招數帶回日常工作！"}
+  {id:"tour-agent",title:"第 4 站：組裝 AI Agent ＋ Skill ＋ Harness",text:"切換 4 種裝備等級，體驗為什麼光有會跑腿的 Agent 還不夠，必須配發『Skill 專業技能包（查法規＋算數）』並套上『Harness 安全馬具』才不會越權暴衝！"},
+  {id:"tour-reliability",title:"第 5 站：日常工作的 7 步防呆清單",text:"最後別忘了點開這 7 張小卡片，把『看引注必點原文』、『算數交給 Excel』等實用防呆招數帶回日常工作！"}
 ];
 let tourIndex=0,lastFocus=null;
 function positionTour(target){
