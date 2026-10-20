@@ -64,6 +64,7 @@ button:focus-visible,input:focus-visible,summary:focus-visible,textarea:focus-vi
 .concept-card{padding:14px 16px;border:1px solid var(--line);border-radius:13px;background:#f8fafc}
 .concept-card>b{display:block;color:#153e75;margin-bottom:5px;font-size:.96rem}
 .concept-card p{margin:0;color:#334155;font-size:.88rem}
+.concept-card.wide{grid-column:1/-1}
 .scope-note{margin-top:14px;padding:13px 16px;border-left:5px solid #b45309;background:#fff7ed;color:#713f12;border-radius:10px;font-size:.9rem}
 .scope-note.blue{border-color:#2563eb;background:#eff6ff;color:#1e3a8a}
 .scope-note.green{border-color:#15803d;background:#f0fdf4;color:#14532d}
@@ -244,7 +245,8 @@ svg.main-svg{display:block;width:100%;height:auto;min-height:445px;user-select:n
 .traffic-card.green{background:#f0fdf4;border-color:#86efac;color:#14532d}
 .traffic-card.yellow{background:#fefce8;border-color:#fde047;color:#713f12}
 .traffic-card.red{background:#fef2f2;border-color:#fca5a5;color:#7f1d1d}
-.traffic-card b{display:block;font-size:1rem;margin-bottom:6px}
+.traffic-card.stop{grid-column:1/-1;background:#1e293b;border-color:#1e293b;color:#f1f5f9}
+.traffic-card>b{display:block;font-size:1rem;margin-bottom:6px}
 .traffic-card p{margin:0;font-size:.87rem}
 
 .reliability-chain{display:grid;grid-template-columns:repeat(7,minmax(125px,1fr));gap:18px;margin-top:12px;overflow-x:auto;padding:4px 4px 14px}
@@ -459,7 +461,7 @@ body.projection .hero{background:#073b86}
               <span>15 (沒讀過的超綱題)</span>
             </div>
             <small id="pos-help" class="hint">
-              <b>1~10 是 AI 讀過的課本範圍</b>；<b>超過 10 就是沒讀過的「超綱題」</b>（例如昨天剛改的內規）。這時真實答案已經轉彎（綠虛線），AI 卻還照著舊印象直線硬猜（藍實線）！
+              <b>1~10 是 AI 讀過的課本範圍</b>；<b>超過 10 就是沒讀過的「超綱題」</b>（例如昨天剛改的內規）。術語叫<b>「知識截止日」</b>：模型只讀到某個日期以前的資料，之後改的規定它一概不知道。這時真實答案已經轉彎（綠虛線），AI 卻還照著舊印象直線硬猜（藍實線）！
             </small>
           </div>
 
@@ -874,12 +876,12 @@ body.projection .hero{background:#073b86}
     <div class="stage-header">
       <div>
         <span class="stage-badge">第 5 站｜日常與工作防呆指南</span>
-        <h2>一眼識破 AI 的 6 種常見破綻 ＆ 安心使用的「紅綠燈法則」</h2>
+        <h2>一眼識破 AI 的 7 種常見破綻 ＆ 安心使用的「紅綠燈法則」</h2>
         <p>了解原理之後，日常工作與生活中要怎麼跟 AI 配合才不會踩雷？把這張防呆指南存起來就對了！</p>
       </div>
     </div>
 
-    <h3 class="sub-heading">🕵️‍♂️ 一、AI 最愛犯的 6 種「瞎掰破綻」圖鑑</h3>
+    <h3 class="sub-heading">🕵️‍♂️ 一、AI 最愛犯的 7 種「瞎掰破綻」圖鑑</h3>
     <div class="concept-grid">
       <div class="concept-card">
         <b>1. 沒讀過硬猜（超綱盲猜）</b>
@@ -905,6 +907,10 @@ body.projection .hero{background:#073b86}
         <b>6. 太愛討好你（順著你講）</b>
         <p>如果你帶著既定立場問「為什麼這樣做不違法？」，AI 很容易為了迎合你而硬找理由，不敢直接反駁你。</p>
       </div>
+      <div class="concept-card wide">
+        <b>7. 寫了一長串推理，也不代表是對的</b>
+        <p>新一代「推理模型」會先寫出一大段思考步驟再作答，看起來非常嚴謹。但這些步驟本身也是文字接龍產生的：可能每一步都很通順，卻建立在一個錯誤前提上；寫出來的理由，也不一定是它真正得出答案的方式。<br>👉 <b>解方：照樣核對結論與出處，別因為推理過程很長、很專業就被說服。</b></p>
+      </div>
     </div>
 
     <h3 class="sub-heading">🚦 二、工作任務「紅綠燈」：哪些事該放心交給 AI？</h3>
@@ -920,6 +926,10 @@ body.projection .hero{background:#073b86}
       <div class="traffic-card red">
         <b>🔴 紅燈真人把關：法規裁量與金額核定</b>
         <p>決定民眾補助資格、法規解釋、預算金額勾稽。<b>嚴禁直接照抄 AI 答案！</b>AI 只能幫忙打草稿或寫 Excel 檢查公式，最終決定必須由真人逐筆核對。</p>
+      </div>
+      <div class="traffic-card stop">
+        <b>⛔ 不論哪個燈號：機密與個資不能貼進公用 AI</b>
+        <p>民眾個資（姓名、身分證字號、病歷、住址）、未公開的預算與採購底價、密件公文，都不要貼進免費或公用的 AI 服務——輸入的內容可能被服務商保存、用來改進模型，或因帳號外洩而流出。請改用機關核准的內部 AI 環境，或先<b>去識別化</b>（把姓名、證號換成代號）再使用。</p>
       </div>
     </div>
 
@@ -1012,6 +1022,11 @@ body.projection .hero{background:#073b86}
               <td>第 2 站的<b>「課外超綱題（X &gt; 10）」</b>，再怎麼認真想也是猜錯。</td>
             </tr>
             <tr>
+              <td><b>知識截止日 (Knowledge Cutoff)</b></td>
+              <td>模型的訓練資料只收錄到某個時間點；之後才修正的法規或新發生的事，它一概不知道，卻常拿舊資料自信作答。</td>
+              <td>第 3 站 AI 記得的<b>「門檻 100 萬」</b>，就是 112 年調為 150 萬以前的舊規定。</td>
+            </tr>
+            <tr>
               <td><b>抽樣溫度 (Temperature)</b></td>
               <td>控制 AI 選字時要「只挑最穩的第一名（低溫）」還是「敢挑冷門字（高溫）」。</td>
               <td>第 2 站的<b>「乖乖牌照稿唸 vs. 天馬行空即興發揮」</b>。</td>
@@ -1060,6 +1075,11 @@ body.projection .hero{background:#073b86}
               <td><b>提示注入 (Prompt Injection)</b></td>
               <td>有人把「給 AI 的指令」藏在網頁、文件或信件裡，Agent 讀到後誤把資料當命令執行。</td>
               <td>第 4 站的<b>「🪤 網頁藏字劫持實習生」</b>，要靠 Harness 把外部內容只當資料。</td>
+            </tr>
+            <tr>
+              <td><b>推理模型 / 思考鏈 (Reasoning / Chain-of-Thought)</b></td>
+              <td>先寫出一步步的思考過程再作答的模型。通常比較準，但仍會幻覺，而且寫出的推理不一定忠實反映它實際的判斷過程。</td>
+              <td>第 5 站的<b>「破綻 7：推理很長也不代表對」</b>。</td>
             </tr>
           </tbody>
         </table>
