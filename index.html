@@ -7,9 +7,9 @@
 <title>為什麼 AI 會一本正經地胡說八道？｜AI 幻覺白話互動實驗室</title>
 <style>
 :root{
-  --primary:#2563eb;--primary-dark:#1d4ed8;--cyan:#0e7490;--success:#15803d;
-  --danger:#dc2626;--warning:#b45309;--ink:#172033;--muted:#52637a;
-  --bg:#f0f5fc;--card:#ffffff;--soft:#f8fafc;--line:#dbe4ef;--focus:#f59e0b;
+  --primary:#2563eb;--primary-dark:#1d4ed8;--cyan:#0e7490;
+  --danger:#dc2626;--ink:#172033;--muted:#52637a;
+  --card:#ffffff;--line:#dbe4ef;--focus:#f59e0b;
   --shadow:0 12px 34px rgba(15,23,42,.08);--radius:18px;--projection-yellow:#ffd43b;
 }
 *{box-sizing:border-box}
@@ -294,7 +294,7 @@ svg.main-svg{display:block;width:100%;height:auto;min-height:445px;user-select:n
 .toast.show{opacity:1;transform:none}
 
 /* Projection & Print */
-body.projection{--primary:#0057d9;--primary-dark:#003f9e;--cyan:#006b80;--success:#08752b;--danger:#c40018;--warning:#8a4300;--ink:#07152b;--muted:#334155;--line:#9aabc0;background:#eef3f8}
+body.projection{--primary:#0057d9;--primary-dark:#003f9e;--cyan:#006b80;--danger:#c40018;--ink:#07152b;--muted:#334155;--line:#9aabc0;background:#eef3f8}
 body.projection .stage,body.projection .subcard,body.projection .chart-card{border-width:2px}
 body.projection .hero{background:#073b86}
 @media print{.step-nav,.tour-overlay,.tour-card,.export-menu{display:none!important}.sim-workspace,.charts,.path-lab,.rag-lab,.agent-lab,.guess-row{display:block}.stage{box-shadow:none;border:1px solid #000;page-break-inside:avoid}}
@@ -423,13 +423,13 @@ body.projection .hero{background:#073b86}
             <div id="tree-playhead" class="tree-playhead"></div>
           </div>
         </div>
-        <div id="path-output" class="path-output">點擊左側「▶ 播放文字接龍」，觀察 AI 如何一步步把句子接出來。</div>
+        <div id="path-output" class="path-output"></div>
         <div class="path-history"><b>剛剛接出來的句子歷程：</b><ol id="path-history-list"></ol></div>
       </section>
     </div>
 
     <div class="scope-note blue">
-      <b>💡 第 1 站重點筆記：</b>因為 AI 關注的是「這樣接語氣順不順」，而不是「這句話在現實世界是不是真的」，所以它天生就很擅長寫出<b>「文筆超流暢、看起來超專業，但內容其實是湊出來的假話」</b>！
+      <b>💡 第 1 站重點筆記：</b>因為 AI 關注的是「這樣接語氣順不順」，而不是「這句話在現實世界是不是真的」，所以它天生就很擅長寫出<b>「文筆超流暢、看起來超專業，但內容其實是湊出來的假話」</b>！<br>🧪 <b>試試看：</b>先開「只選第一名」，再按「😈 下一步故意挑歪樓詞」——就算 AI 每一步都挑最高分，一旦前面錯了，後面還是會一路錯下去。
     </div>
   </section>
 
@@ -1914,7 +1914,7 @@ $("btn-export-report").onclick=exportReport;
 // 3 分鐘新手導覽
 // =========================================================
 const tourSteps=[
-  {id:"tour-explain",title:"第 1 站：先看 AI 怎麼玩「文字接龍」",text:"在這裡按下『▶ 播放文字接龍』，你會看到 AI 每次只猜下一個詞。如果中間不小心挑到橘紅色的歪樓詞，後面就會順著繼續圓謊！"},
+  {id:"tour-explain",title:"第 1 站：先看 AI 怎麼玩「文字接龍」",text:"在這裡按下『▶ 播放文字接龍』，你會看到 AI 每次只猜下一個詞。如果中間不小心挑到橘紅色的歪樓詞，後面就會順著繼續圓謊！試試先開『只選第一名』再按『😈 下一步故意挑歪樓詞』：就算每步都挑最高分，一旦前面錯了，後面還是一路錯下去。"},
   {id:"tour-controls",title:"第 2 站：調整「題目熟不熟」與「自由發揮度」",text:"試著調整兩個開關，或直接點選『🔴 問超綱題＋乖乖牌模式』，看看當題目超出課本範圍（X > 10）時會發生什麼事。"},
   {id:"tour-reg-chart",title:"看左圖：安全好球帶 vs. 直線盲猜",text:"藍色寬帶是正確答案的『好球帶』。超過 10 之後，真實世界已經轉彎了（綠虛線），AI 卻還傻傻照著直線硬猜（藍實線）！"},
   {id:"tour-dist-chart",title:"看右圖：為什麼會「超有自信地答錯」？",text:"右圖把目前位置的答案分佈放大。當山峰塗紅色的面積越大，代表 AI 脫靶瞎掰的機率越高。"},
