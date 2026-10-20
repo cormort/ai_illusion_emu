@@ -7,7 +7,7 @@
 <title>為什麼 AI 會一本正經地胡說八道？｜AI 幻覺白話互動實驗室</title>
 <style>
 :root{
-  --primary:#2563eb;--primary-dark:#1d4ed8;--cyan:#0891b2;--success:#15803d;
+  --primary:#2563eb;--primary-dark:#1d4ed8;--cyan:#0e7490;--success:#15803d;
   --danger:#dc2626;--warning:#b45309;--ink:#172033;--muted:#52637a;
   --bg:#f0f5fc;--card:#ffffff;--soft:#f8fafc;--line:#dbe4ef;--focus:#f59e0b;
   --shadow:0 12px 34px rgba(15,23,42,.08);--radius:18px;--projection-yellow:#ffd43b;
@@ -119,7 +119,7 @@ button:focus-visible,input:focus-visible,summary:focus-visible,textarea:focus-vi
 .control{padding:13px 0;border-top:1px solid var(--line)}
 .control:first-of-type{border-top:0;padding-top:0}
 .label-row{display:flex;justify-content:space-between;gap:8px;align-items:center}
-.label-row label{font-weight:800;font-size:.93rem}
+.label-row label,.label-row b{font-weight:800;font-size:.93rem}
 .value-pill{min-width:60px;padding:2px 9px;border-radius:999px;background:#dbeafe;color:#1e40af;text-align:center;font-weight:900;font-size:.86rem;font-variant-numeric:tabular-nums}
 .hint{display:block;margin-top:6px;color:var(--muted);font-size:.81rem;line-height:1.48}
 .range-labels{display:flex;justify-content:space-between;color:var(--muted);font-size:.74rem;font-weight:700}
@@ -229,7 +229,7 @@ svg.main-svg{display:block;width:100%;height:auto;min-height:445px;user-select:n
 .agent-mode.active small{color:#dbeafe}
 .agent-mode.active .mode-pill{background:rgba(255,255,255,.2);color:#fff}
 .equip-tags{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
-.equip-tag{padding:5px 10px;border-radius:8px;font-size:.77rem;font-weight:800;border:1px solid #cbd5e1;background:#f1f5f9;color:#64748b}
+.equip-tag{padding:5px 10px;border-radius:8px;font-size:.77rem;font-weight:800;border:1px solid #cbd5e1;background:#f1f5f9;color:#475569}
 .equip-tag.on{background:#dcfce7;border-color:#16a34a;color:#14532d}
 .equip-tag.danger{background:#fee2e2;border-color:#dc2626;color:#991b1b}
 .trace-list{display:grid;gap:7px;margin:10px 0}
@@ -297,7 +297,7 @@ svg.main-svg{display:block;width:100%;height:auto;min-height:445px;user-select:n
 body.projection{--primary:#0057d9;--primary-dark:#003f9e;--cyan:#006b80;--success:#08752b;--danger:#c40018;--warning:#8a4300;--ink:#07152b;--muted:#334155;--line:#9aabc0;background:#eef3f8}
 body.projection .stage,body.projection .subcard,body.projection .chart-card{border-width:2px}
 body.projection .hero{background:#073b86}
-@media print{.step-nav,.tour-overlay,.tour-card,.export-menu{display:none!important}.sim-workspace,.charts,.path-lab,.rag-lab{display:block}.stage{box-shadow:none;border:1px solid #000;page-break-inside:avoid}}
+@media print{.step-nav,.tour-overlay,.tour-card,.export-menu{display:none!important}.sim-workspace,.charts,.path-lab,.rag-lab,.agent-lab,.guess-row{display:block}.stage{box-shadow:none;border:1px solid #000;page-break-inside:avoid}}
 
 @keyframes edgeFlow{from{stroke-dasharray:4 18;stroke-dashoffset:40}to{stroke-dasharray:4 0;stroke-dashoffset:0}}
 @keyframes pulseHead{50%{box-shadow:0 0 0 10px rgba(34,197,94,.08)}}
@@ -403,6 +403,7 @@ body.projection .hero{background:#073b86}
             <button id="btn-tree-step" class="btn btn-ghost">單步往下接</button>
             <button id="btn-tree-reset" class="btn btn-ghost">重來</button>
             <button id="btn-path-greedy" class="btn btn-ghost">只選第一名：關</button>
+            <button id="btn-tree-derail" class="btn btn-warn">😈 下一步故意挑歪樓詞</button>
           </div>
         </div>
         <div class="tree-status">
@@ -483,7 +484,7 @@ body.projection .hero{background:#073b86}
           </div>
 
           <div class="control">
-            <div class="label-row"><label>⚡ 一鍵體驗 3 種經典狀況</label></div>
+            <div class="label-row"><b>⚡ 一鍵體驗 3 種經典狀況</b></div>
             <div class="presets" aria-label="情境預設">
               <button class="preset" data-x="5" data-t="0.3">
                 <span>🟢 問考古題 ＋ 乖乖牌模式</span>
@@ -1115,6 +1116,7 @@ function randNormal(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.rando
 function erf(x){const s=x<0?-1:1,a=Math.abs(x),t=1/(1+.3275911*a);return s*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-a*a))}
 function normalCDF(z){return .5*(1+erf(z/Math.sqrt(2)))}
 function el(name,attrs={}){const e=document.createElementNS(NS,name);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));return e}
+function setActive(sel,btn){document.querySelectorAll(sel).forEach(x=>{const on=x===btn;x.classList.toggle("active",on);x.setAttribute("aria-pressed",on)})}
 function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove("show"),1900)}
 
 function buildData(){
@@ -1340,7 +1342,7 @@ function renderGuess(){
   $("guess-result").innerHTML=`這題 AI 答對機率約 <b>${pct}</b>。<br>硬猜的期望得分：<b>${score.toFixed(2)}</b> 分；說「不知道」：<b>0</b> 分。<br>👉 為了拿高分，AI 會選擇：<b>${willGuess?"硬猜一個答案":"老實說不知道"}</b>${willGuess&&p<.5?"（明明多半會錯，硬猜還是比較划算！）":""}`;
 }
 document.querySelectorAll(".guess-rule").forEach(b=>b.onclick=()=>{
-  document.querySelectorAll(".guess-rule").forEach(x=>x.classList.toggle("active",x===b));
+  setActive(".guess-rule",b);
   guessPenalty=+b.dataset.penalty;
   renderGuess();
 });
@@ -1377,7 +1379,7 @@ function setPosFromSvgEvent(e){
   const clampedX = Math.max(1, Math.min(15, Math.round(rawX * 2) / 2));
   if(+posInput.value !== clampedX){
     posInput.value = clampedX;
-    document.querySelectorAll(".preset").forEach(x=>x.classList.remove("active"));
+    setActive(".preset",null);
     updateUI(true);
   }
 }
@@ -1387,11 +1389,11 @@ window.addEventListener("pointerup", () => { isDraggingReg = false; });
 window.addEventListener("pointercancel", () => { isDraggingReg = false; });
 
 tempInput.addEventListener("input",()=>{
-  document.querySelectorAll(".preset").forEach(x=>x.classList.remove("active"));
+  setActive(".preset",null);
   updateUI(true);
 });
 posInput.addEventListener("input",()=>{
-  document.querySelectorAll(".preset").forEach(x=>x.classList.remove("active"));
+  setActive(".preset",null);
   updateUI(true);
 });
 $("btn-run").onclick=()=>generatePoints(1);
@@ -1400,8 +1402,7 @@ $("btn-clear").onclick=()=>clearAll(true);
 $("btn-reset-data").onclick=()=>{buildData();toast("已換一組新的課本例題資料")};
 
 document.querySelectorAll(".preset").forEach(b=>b.onclick=()=>{
-  document.querySelectorAll(".preset").forEach(x=>x.classList.remove("active"));
-  b.classList.add("active");
+  setActive(".preset",b);
   posInput.value=b.dataset.x;
   tempInput.value=b.dataset.t;
   updateUI(true);
@@ -1415,18 +1416,18 @@ const pathCases={
     start:"題目：AI 為什麼會瞎掰？",
     steps:[
       [["大型語言模型",44],["生成式 AI",36],["AI 聊天機器人",20]],
-      [["是在玩文字接龍",48],["會去資料庫查真相",18,1],["靠算機率猜字",34]],
-      [["每次猜下一個詞",55],["直接背出標準答案",14,1],["挑看起來順口的字",31]],
-      [["所以流暢但可能講錯",46],["因此答案絕對正確",9,1],["需要翻資料核對",45]]
+      [["是在玩文字接龍",44],["會去資料庫查真相",28,1],["靠算機率猜字",28]],
+      [["每次猜下一個詞",46],["直接背出標準答案",24,1],["挑看起來順口的字",30]],
+      [["所以流暢但可能講錯",42],["因此答案絕對正確",20,1],["需要翻資料核對",38]]
     ]
   },
   official:{
     start:"題目：這筆經費能不能直接核銷？",
     steps:[
-      [["先查機關現行規定",46],["照以前差不多經驗",29,1],["先看有無附上規章",25]],
-      [["發現目前資料不足",38],["應該可以直接過關",16,1],["翻出最新報支要點",46]],
-      [["標註條文與版本",47],["自己湊個合理條號",12,1],["把事實跟推測分開",41]],
-      [["交給承辦人最後把關",57],["直接替主管蓋章核定",8,1],["先做成草稿供核對",35]]
+      [["先查機關現行規定",42],["照以前差不多經驗",33,1],["先看有無附上規章",25]],
+      [["發現目前資料不足",34],["應該可以直接過關",26,1],["翻出最新報支要點",40]],
+      [["標註條文與版本",44],["自己湊個合理條號",22,1],["把事實跟推測分開",34]],
+      [["交給承辦人最後把關",48],["直接替主管蓋章核定",18,1],["先做成草稿供核對",34]]
     ]
   },
   creative:{
@@ -1439,10 +1440,11 @@ const pathCases={
     ]
   }
 };
-let pathMode="explain",pathGreedy=false,treeStep=-1,treeTimer=null,treeSelection=[],treeRows=[],treeEdges=[],lastChosenNode=null;
+let pathMode="explain",pathGreedy=false,pathForceRisky=false,treeStep=-1,treeTimer=null,treeSelection=[],treeRows=[],treeEdges=[],lastChosenNode=null;
 
-function pathItems(a,t){
-  const w=a.map(x=>Math.pow(x[1]/100,1/Math.max(.1,t))),z=w.reduce((x,y)=>x+y,0);
+// 自回歸滾雪球：前面挑過歪樓詞後，歪話已成為上下文，同方向的詞變得更「順口」（權重 ×4）
+function pathItems(a,t,drift){
+  const w=a.map(x=>Math.pow(x[1]/100*(drift&&x[2]?4:1),1/Math.max(.1,t))),z=w.reduce((x,y)=>x+y,0);
   return a.map((x,i)=>({t:x[0],p:w[i]/z,r:x[2]}));
 }
 function pathPick(a){
@@ -1458,6 +1460,7 @@ function stopTree(){
 }
 function resetTree(){
   stopTree();
+  pathForceRisky=false;
   treeStep=-1;
   treeSelection=[];
   treeEdges=[];
@@ -1474,7 +1477,7 @@ function resetTree(){
   }
   $('tree-playhead').classList.remove('show');
   $('path-history-list').innerHTML='';
-  $('path-output').textContent='點擊「▶ 播放文字接龍」，觀察 AI 如何一步步把句子接出來。';
+  $('path-output').textContent='點擊「▶ 播放文字接龍」，觀察 AI 如何一步步把句子接出來；想看「一步錯、步步錯」，按「😈 下一步故意挑歪樓詞」。';
   $('tree-step-label').textContent='尚未開始';
   $('tree-context-label').textContent='起始題目';
   $('tree-risk-label').textContent='等待開始';
@@ -1521,7 +1524,10 @@ function advanceTree(){
   const c=pathCases[pathMode];
   if(treeStep>=c.steps.length-1){stopTree();$('tree-step-label').textContent='接龍完成！';return}
   treeStep++;
-  const temp=+$('path-temp').value,a=pathItems(c.steps[treeStep],temp),chosen=pathPick(a);
+  const drift=treeSelection.some(s=>s.r),temp=+$('path-temp').value,a=pathItems(c.steps[treeStep],temp,drift);
+  const forced=pathForceRisky&&a.find(x=>x.r),chosen=forced||pathPick(a);
+  if(forced)pathForceRisky=false;
+  chosen.forced=!!forced;chosen.drift=drift;
   const parentNode=lastChosenNode;
   let chosenNode=null;
 
@@ -1544,10 +1550,10 @@ function advanceTree(){
   const hasRisk = treeSelection.some(s => s.r);
   $('tree-step-label').textContent=`第 ${treeStep+1}／${c.steps.length} 步`;
   $('tree-context-label').textContent=`題目 + 已接 ${treeSelection.length} 句`;
-  $('tree-risk-label').textContent=chosen.r?'🚨 挑中歪樓詞！':(hasRisk?'⚠️ 前面已歪樓（順著圓謊中）':'🟢 目前接龍安全');
+  $('tree-risk-label').textContent=chosen.r?(chosen.drift?'🚨 順著前面的錯繼續圓謊！':'🚨 挑中歪樓詞！'):(hasRisk?'⚠️ 前面已歪樓（順著圓謊中）':'🟢 目前接龍安全');
   $('tree-risk-label').style.color=(chosen.r||hasRisk)?'#c2410c':'#15803d';
   $('path-output').textContent='目前接出來的句子：'+treeSelection.map(x=>x.t).join('，');
-  $('path-history-list').innerHTML=treeSelection.map((x,i)=>`<li>第 ${i+1} 步挑中「<b>${x.t}</b>」（當時機率 ${(x.p*100).toFixed(0)}%）${x.r?' <span style="color:#c2410c;font-weight:800">← 聽起來順但不是事實，會害後面跟著歪掉！</span>':''}</li>`).join('');
+  $('path-history-list').innerHTML=treeSelection.map((x,i)=>`<li>第 ${i+1} 步挑中「<b>${x.t}</b>」（當時機率 ${(x.p*100).toFixed(0)}%）${x.forced?'（😈 故意挑的）':''}${x.r?` <span style="color:#c2410c;font-weight:800">← ${x.drift?'前面已經歪了，歪話變得更順口，於是繼續圓謊！':'聽起來順但不是事實，會害後面跟著歪掉！'}</span>`:''}</li>`).join('');
   if(treeStep===c.steps.length-1)stopTree();
 }
 new ResizeObserver(redrawTreeLines).observe($('tree-canvas'));
@@ -1561,6 +1567,13 @@ $('btn-tree-play').onclick=()=>{
 };
 $('btn-tree-step').onclick=()=>{stopTree();advanceTree()};
 $('btn-tree-reset').onclick=resetTree;
+$('btn-tree-derail').onclick=()=>{
+  stopTree();
+  if(treeStep>=pathCases[pathMode].steps.length-1)resetTree();
+  pathForceRisky=true;
+  do advanceTree();while(pathForceRisky&&treeStep<pathCases[pathMode].steps.length-1);
+  pathForceRisky=false;
+};
 $('tree-speed').oninput=()=>{
   const v=+$('tree-speed').value;
   $('tree-speed-val').textContent=v<650?'快速':v>1000?'慢速':'正常';
@@ -1570,13 +1583,15 @@ $('path-temp').oninput=()=>{$('path-temp-val').textContent=(+$('path-temp').valu
 $('btn-path-greedy').onclick=()=>{
   pathGreedy=!pathGreedy;
   $('btn-path-greedy').textContent='只選第一名：'+(pathGreedy?'開':'關');
+  $('btn-path-greedy').setAttribute('aria-pressed',pathGreedy);
   $('tree-mode-label').textContent=pathGreedy?'永遠只挑最高分 (Greedy)':'依機率擲骰子';
   resetTree();
 };
 document.querySelectorAll('.path-scenario').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('.path-scenario').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');
+  setActive('.path-scenario',b);
   pathMode=b.dataset.path;
+  $('btn-tree-derail').disabled=pathMode==='creative';
+  $('btn-tree-derail').title=pathMode==='creative'?'創意故事沒有標準答案，不會歪樓':'';
   $('path-prompt').value=pathMode==='official'?'請依現行規定判斷這筆經費能不能直接核銷。':pathMode==='creative'?'請寫一個關於未來鐵路的短篇故事開頭。':'請說明大型語言模型為何可能產生幻覺。';
   resetTree();
 });
@@ -1678,8 +1693,7 @@ function runRagDemo(){
   $("flow-verify").classList.add("on");
 }
 document.querySelectorAll("#tour-rag .rag-mode").forEach(b=>b.onclick=()=>{
-  document.querySelectorAll("#tour-rag .rag-mode").forEach(x=>x.classList.remove("active"));
-  b.classList.add("active");
+  setActive("#tour-rag .rag-mode",b);
   ragMode=b.dataset.mode;
   runRagDemo();
 });
@@ -1769,8 +1783,7 @@ function runAgentDemo(){
   $("ascore-safety").textContent=c.safety;
 }
 document.querySelectorAll(".agent-mode").forEach(b=>b.onclick=()=>{
-  document.querySelectorAll(".agent-mode").forEach(x=>x.classList.remove("active"));
-  b.classList.add("active");
+  setActive(".agent-mode",b);
   agentMode=b.dataset.agent;
   runAgentDemo();
 });
@@ -1963,6 +1976,7 @@ document.addEventListener("keydown",e=>{
   if(e.key==="ArrowLeft")$("tour-prev").click();
 });
 
+document.querySelectorAll(".path-scenario,.preset,#tour-rag .rag-mode,.agent-mode,.guess-rule,#btn-path-greedy").forEach(b=>b.setAttribute("aria-pressed",b.classList.contains("active")));
 posInput.value=8;tempInput.value=.7;buildData();
 </script>
 </body>
