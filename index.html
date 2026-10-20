@@ -81,24 +81,27 @@ button:focus-visible,input:focus-visible,summary:focus-visible,textarea:focus-vi
 .path-history{margin-top:10px;color:#475569;font-size:.84rem}
 .path-history ol{margin:5px 0 0;padding-left:20px}
 .tree-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0 8px}
-.tree-stage{position:relative;min-height:490px;overflow:auto;border:1px solid #aabbd0;border-radius:14px;background:radial-gradient(circle at 50% 0,#e0efff 0,#f8fbff 42%,#fff 100%)}
-.tree-canvas{position:relative;width:100%;min-width:650px;height:480px}
-.tree-lines{position:absolute;inset:0;width:100%;height:100%;min-height:480px;overflow:visible;pointer-events:none}
-.tree-edge{fill:none;stroke:#94a3b8;stroke-width:2.2;opacity:.55;stroke-dasharray:6 5;vector-effect:non-scaling-stroke}
-.tree-edge.active{stroke:#16a34a;stroke-width:3.8;opacity:1;stroke-dasharray:none;animation:edgeFlow .65s ease both}
+.tree-stage{position:relative;overflow-x:auto;border:1px solid #aabbd0;border-radius:14px;background:radial-gradient(circle at 50% 0,#e0efff 0,#f8fbff 42%,#fff 100%)}
+.tree-canvas{position:relative;width:100%;min-width:580px;padding:18px 16px}
+.tree-lines{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:1}
+.tree-nodes-grid{position:relative;z-index:2;display:grid;grid-template-rows:repeat(5,auto);row-gap:34px}
+.tree-row{display:grid;grid-template-columns:repeat(3,minmax(156px,1fr));column-gap:16px;align-items:stretch;justify-items:center;min-height:76px}
+.tree-row.root-row{grid-template-columns:1fr;min-height:64px}
+.tree-edge{fill:none;stroke:#94a3b8;stroke-width:2.2;opacity:.6;stroke-dasharray:6 5}
+.tree-edge.active{stroke:#16a34a;stroke-width:3.6;opacity:1;stroke-dasharray:none;animation:edgeFlow .65s ease both}
 .tree-edge.risky{stroke:#ea580c;opacity:.65}
-.tree-edge.risky.active{stroke:#dc2626;stroke-width:3.8;opacity:1}
-.tree-token{position:absolute;transform:translate(-50%,-50%) scale(.84);width:148px;min-height:58px;padding:8px;border:2px solid #9fb0c5;border-radius:12px;background:#fff;text-align:center;box-shadow:0 5px 14px rgba(15,23,42,.08);opacity:0;transition:opacity .35s,transform .35s;z-index:2}
-.tree-token.visible{opacity:1;transform:translate(-50%,-50%) scale(1)}
-.tree-token.selected{border-color:#16a34a;background:#dcfce7;box-shadow:0 0 0 4px #bbf7d0,0 8px 18px rgba(22,163,74,.16);z-index:4}
+.tree-edge.risky.active{stroke:#dc2626;stroke-width:3.6;opacity:1}
+.tree-token{position:relative;width:100%;max-width:210px;padding:8px 10px;border:2px solid #9fb0c5;border-radius:12px;background:#fff;text-align:center;box-shadow:0 5px 14px rgba(15,23,42,.07);opacity:1;transition:box-shadow .2s,border-color .2s,background .2s;line-height:1.35;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.tree-token.selected{border-color:#16a34a;background:#dcfce7;box-shadow:0 0 0 3px #bbf7d0,0 8px 18px rgba(22,163,74,.15);z-index:4}
 .tree-token.risky{border-color:#ea580c;background:#fff7ed}
-.tree-token.risky.selected{border-color:#dc2626;background:#fee2e2;box-shadow:0 0 0 4px #fecaca}
-.tree-token.root{width:220px;border-color:#0755a5;background:#dbeafe;font-weight:900;z-index:3}
-.tree-token .pct{display:block;margin-top:3px;color:#1d4ed8;font-weight:900;font-size:.84rem}
-.tree-token .tag{display:inline-block;margin-top:4px;padding:2px 7px;border-radius:999px;background:#e2e8f0;color:#475569;font-size:.69rem;font-weight:700}
+.tree-token.risky.selected{border-color:#dc2626;background:#fee2e2;box-shadow:0 0 0 3px #fecaca}
+.tree-token.root{max-width:280px;border-color:#0755a5;background:#dbeafe;font-weight:900;z-index:3}
+.tree-token .token-title{font-weight:800;color:#0f2f67;font-size:.92rem;word-break:keep-all}
+.tree-token .pct{display:block;margin-top:2px;color:#1d4ed8;font-weight:900;font-size:.8rem}
+.tree-token .tag{display:inline-block;margin-top:4px;padding:2px 8px;border-radius:999px;background:#e2e8f0;color:#475569;font-size:.69rem;font-weight:700}
 .tree-token.selected .tag{background:#15803d;color:#fff}
 .tree-token.risky.selected .tag{background:#dc2626;color:#fff}
-.tree-playhead{position:absolute;width:16px;height:16px;border:4px solid #fff;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.25);transform:translate(-50%,-50%);opacity:0;z-index:8;transition:left .5s ease,top .5s ease,opacity .25s}
+.tree-playhead{position:absolute;width:16px;height:16px;border:3px solid #fff;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.28);transform:translate(-50%,-50%);opacity:0;z-index:8;transition:left .4s ease,top .4s ease,opacity .25s;pointer-events:none}
 .tree-playhead.show{opacity:1;animation:pulseHead 1.2s infinite}
 .tree-status{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
 .tree-stat{padding:9px 11px;border:1px solid #cbd5e1;border-radius:9px;background:#fff}
@@ -377,8 +380,8 @@ body.projection .hero{background:#073b86}
         <h3>🌳 即時接龍畫面（橘紅框＝聽起來很順但偏離事實的選項）</h3>
         <div class="tree-stage">
           <div id="tree-canvas" class="tree-canvas">
-            <svg id="tree-lines" class="tree-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
-            <div id="tree-nodes"></div>
+            <svg id="tree-lines" class="tree-lines" aria-hidden="true"></svg>
+            <div id="tree-nodes" class="tree-nodes-grid"></div>
             <div id="tree-playhead" class="tree-playhead"></div>
           </div>
         </div>
@@ -1205,8 +1208,7 @@ const pathCases={
     ]
   }
 };
-let pathMode="explain",pathGreedy=false,treeStep=-1,treeTimer=null,treeSelection=[],lastChosenX=50;
-const treePos={root:[50,8],rows:[[18,50,82],[18,50,82],[18,50,82],[18,50,82]],ys:[27,47,67,87]};
+let pathMode="explain",pathGreedy=false,treeStep=-1,treeTimer=null,treeSelection=[],treeRows=[],treeEdges=[],lastChosenNode=null;
 
 function pathItems(a,t){
   const w=a.map(x=>Math.pow(x[1]/100,1/Math.max(.1,t))),z=w.reduce((x,y)=>x+y,0);
@@ -1227,9 +1229,18 @@ function resetTree(){
   stopTree();
   treeStep=-1;
   treeSelection=[];
-  lastChosenX=50;
+  treeEdges=[];
+  lastChosenNode=null;
   $('tree-lines').innerHTML='';
-  $('tree-nodes').innerHTML='';
+  const container=$('tree-nodes');
+  container.innerHTML='';
+  treeRows=[];
+  for(let r=0;r<5;r++){
+    const row=document.createElement('div');
+    row.className=r===0?'tree-row root-row':'tree-row';
+    container.appendChild(row);
+    treeRows.push(row);
+  }
   $('tree-playhead').classList.remove('show');
   $('path-history-list').innerHTML='';
   $('path-output').textContent='點擊「▶ 播放文字接龍」，觀察 AI 如何一步步把句子接出來。';
@@ -1239,54 +1250,65 @@ function resetTree(){
   $('tree-risk-label').style.color='#173b70';
   drawRoot();
 }
-function nodeEl(text,pct,x,y,cls=''){
+function nodeEl(text,pct,rowIdx,cls=''){
   const n=document.createElement('div');
   n.className='tree-token '+cls;
-  n.style.left=x+'%';
-  n.style.top=y+'%';
   const tagText = cls.includes('risky') ? '⚠️ 歪樓風險詞' : (cls.includes('root') ? '起點' : '候選接龍詞');
-  n.innerHTML=`${text}<span class="pct">${pct}</span><span class="tag">${tagText}</span>`;
-  $('tree-nodes').appendChild(n);
-  requestAnimationFrame(()=>n.classList.add('visible'));
+  n.innerHTML=`<span class="token-title">${text}</span><span class="pct">${pct}</span><span class="tag">${tagText}</span>`;
+  treeRows[rowIdx].appendChild(n);
   return n;
 }
 function drawRoot(){
   const c=pathCases[pathMode];
-  nodeEl(c.start,'把問題讀進腦袋',50,treePos.root[1],'root');
+  lastChosenNode=nodeEl(c.start,'把問題讀進腦袋',0,'root');
 }
-function edge(x1,y1,x2,y2,cls=''){
-  const p=document.createElementNS(NS,'path');
-  p.setAttribute('d',`M ${x1} ${y1} C ${x1} ${(y1+y2)/2}, ${x2} ${(y1+y2)/2}, ${x2} ${y2}`);
-  p.setAttribute('class','tree-edge '+cls);
-  p.setAttribute('vector-effect','non-scaling-stroke');
-  $('tree-lines').appendChild(p);
-  return p;
+function redrawTreeLines(){
+  const canvas=$('tree-canvas'),svg=$('tree-lines');
+  if(!canvas||!svg)return;
+  const cr=canvas.getBoundingClientRect();
+  const w=Math.max(1,cr.width),h=Math.max(1,cr.height);
+  svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  svg.innerHTML='';
+  treeEdges.forEach(item=>{
+    const pr=item.from.getBoundingClientRect(),tr=item.to.getBoundingClientRect();
+    const x1=pr.left+pr.width/2-cr.left, y1=pr.bottom-cr.top;
+    const x2=tr.left+tr.width/2-cr.left, y2=tr.top-cr.top;
+    const midY=(y1+y2)/2;
+    const p=document.createElementNS(NS,'path');
+    p.setAttribute('d',`M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`);
+    p.setAttribute('class','tree-edge'+(item.risk?' risky':'')+(item.active?' active':''));
+    svg.appendChild(p);
+  });
+  if(lastChosenNode && treeStep>=0){
+    const r=lastChosenNode.getBoundingClientRect();
+    const head=$('tree-playhead');
+    head.style.left=(r.right-cr.left-4)+'px';
+    head.style.top=(r.top-cr.top+4)+'px';
+  }
 }
 function advanceTree(){
   const c=pathCases[pathMode];
   if(treeStep>=c.steps.length-1){stopTree();$('tree-step-label').textContent='接龍完成！';return}
   treeStep++;
   const temp=+$('path-temp').value,a=pathItems(c.steps[treeStep],temp),chosen=pathPick(a);
-  const y=treePos.ys[treeStep],prevY=treeStep===0?treePos.root[1]:treePos.ys[treeStep-1];
-  const prevX=treeStep===0?50:lastChosenX;
-  let chosenX=50;
+  const parentNode=lastChosenNode;
+  let chosenNode=null;
 
-  a.forEach((item,i)=>{
-    const x=treePos.rows[treeStep][i],risk=item.r?' risky':'';
-    const line=edge(prevX,prevY,x,y,risk);
-    const n=nodeEl(item.t,'中選機率 '+(item.p*100).toFixed(0)+'%',x,y,risk);
-    if(item.t===chosen.t){
-      chosenX=x;
-      setTimeout(()=>{n.classList.add('selected');line.classList.add('active')},150);
+  a.forEach(item=>{
+    const risk=item.r?' risky':'';
+    const isChosen=item.t===chosen.t;
+    const n=nodeEl(item.t,'中選機率 '+(item.p*100).toFixed(0)+'%',treeStep+1,risk+(isChosen?' selected':''));
+    const edgeObj={from:parentNode,to:n,risk:!!item.r,active:isChosen};
+    treeEdges.push(edgeObj);
+    if(isChosen){
+      chosenNode=n;
     }
   });
 
-  lastChosenX=chosenX;
+  lastChosenNode=chosenNode;
   treeSelection.push(chosen);
-  const head=$('tree-playhead');
-  head.style.left=chosenX+'%';
-  head.style.top=y+'%';
-  head.classList.add('show');
+  $('tree-playhead').classList.add('show');
+  redrawTreeLines();
 
   const hasRisk = treeSelection.some(s => s.r);
   $('tree-step-label').textContent=`第 ${treeStep+1}／${c.steps.length} 步`;
@@ -1297,6 +1319,7 @@ function advanceTree(){
   $('path-history-list').innerHTML=treeSelection.map((x,i)=>`<li>第 ${i+1} 步挑中「<b>${x.t}</b>」（當時機率 ${(x.p*100).toFixed(0)}%）${x.r?' <span style="color:#c2410c;font-weight:800">← 聽起來順但不是事實，會害後面跟著歪掉！</span>':''}</li>`).join('');
   if(treeStep===c.steps.length-1)stopTree();
 }
+addEventListener('resize',redrawTreeLines);
 
 $('btn-tree-play').onclick=()=>{
   if(treeStep>=pathCases[pathMode].steps.length-1)resetTree();
