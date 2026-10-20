@@ -394,15 +394,15 @@ body.projection .hero{background:#073b86}
             <button class="path-scenario" data-path="official">工作規定判斷</button>
             <button class="path-scenario" data-path="creative">寫創意故事</button>
           </div>
-          <label for="path-temp"><b>自由發揮度（溫度 Temperature）：<output id="path-temp-val">0.7</output></b> <small style="color:var(--muted)">（越高越愛挑冷門詞）</small></label>
-          <input id="path-temp" autocomplete="off" type="range" min="0.1" max="1.8" value="0.7" step="0.1">
+          <label for="path-temp"><b>自由發揮度（溫度 Temperature）：<output id="path-temp-val">0.7</output></b> <small style="color:var(--muted)">（越高越愛挑冷門詞；0＝永遠只挑最高分）</small></label>
+          <input id="path-temp" autocomplete="off" type="range" min="0" max="1.8" value="0.7" step="0.1">
+          <small class="hint" style="margin-top:0">註：真實模型即使溫度設為 0，也不保證每次完全相同（硬體平行運算的微小誤差、伺服器批次處理都可能讓結果略有不同）。</small>
           <label for="tree-speed"><b>接龍動畫速度：<output id="tree-speed-val">正常</output></b></label>
           <input id="tree-speed" autocomplete="off" type="range" min="350" max="1400" value="750" step="50">
           <div class="tree-toolbar">
             <button id="btn-tree-play" class="btn btn-primary">▶ 播放文字接龍</button>
             <button id="btn-tree-step" class="btn btn-ghost">單步往下接</button>
             <button id="btn-tree-reset" class="btn btn-ghost">重來</button>
-            <button id="btn-path-greedy" class="btn btn-ghost">只選第一名：關</button>
             <button id="btn-tree-derail" class="btn btn-warn">😈 下一步故意挑歪樓詞</button>
           </div>
         </div>
@@ -429,7 +429,7 @@ body.projection .hero{background:#073b86}
     </div>
 
     <div class="scope-note blue">
-      <b>💡 第 1 站重點筆記：</b>因為 AI 關注的是「這樣接語氣順不順」，而不是「這句話在現實世界是不是真的」，所以它天生就很擅長寫出<b>「文筆超流暢、看起來超專業，但內容其實是湊出來的假話」</b>！<br>🧪 <b>試試看：</b>先開「只選第一名」，再按「😈 下一步故意挑歪樓詞」——就算 AI 每一步都挑最高分，一旦前面錯了，後面還是會一路錯下去。
+      <b>💡 第 1 站重點筆記：</b>因為 AI 關注的是「這樣接語氣順不順」，而不是「這句話在現實世界是不是真的」，所以它天生就很擅長寫出<b>「文筆超流暢、看起來超專業，但內容其實是湊出來的假話」</b>！<br>🧪 <b>試試看：</b>先把溫度拉到 0（永遠只挑最高分），再按「😈 下一步故意挑歪樓詞」——就算 AI 每一步都挑最高分，一旦前面錯了，後面還是會一路錯下去。
     </div>
   </section>
 
@@ -1440,7 +1440,7 @@ const pathCases={
     ]
   }
 };
-let pathMode="explain",pathGreedy=false,pathForceRisky=false,treeStep=-1,treeTimer=null,treeSelection=[],treeRows=[],treeEdges=[],lastChosenNode=null;
+let pathMode="explain",pathForceRisky=false,treeStep=-1,treeTimer=null,treeSelection=[],treeRows=[],treeEdges=[],lastChosenNode=null;
 
 // 自回歸滾雪球：前面挑過歪樓詞後，歪話已成為上下文，同方向的詞變得更「順口」（權重 ×4）
 function pathItems(a,t,drift){
@@ -1448,7 +1448,7 @@ function pathItems(a,t,drift){
   return a.map((x,i)=>({t:x[0],p:w[i]/z,r:x[2]}));
 }
 function pathPick(a){
-  if(pathGreedy)return a.reduce((x,y)=>x.p>y.p?x:y);
+  if(+$('path-temp').value===0)return a.reduce((x,y)=>x.p>y.p?x:y);
   let r=Math.random(),z=0;
   for(const x of a){z+=x.p;if(r<=z)return x}
   return a[a.length-1];
@@ -1579,12 +1579,10 @@ $('tree-speed').oninput=()=>{
   $('tree-speed-val').textContent=v<650?'快速':v>1000?'慢速':'正常';
   if(treeTimer){clearInterval(treeTimer);treeTimer=setInterval(advanceTree,v)}
 };
-$('path-temp').oninput=()=>{$('path-temp-val').textContent=(+$('path-temp').value).toFixed(1);resetTree()};
-$('btn-path-greedy').onclick=()=>{
-  pathGreedy=!pathGreedy;
-  $('btn-path-greedy').textContent='只選第一名：'+(pathGreedy?'開':'關');
-  $('btn-path-greedy').setAttribute('aria-pressed',pathGreedy);
-  $('tree-mode-label').textContent=pathGreedy?'永遠只挑最高分 (Greedy)':'依機率擲骰子';
+$('path-temp').oninput=()=>{
+  const t=+$('path-temp').value;
+  $('path-temp-val').textContent=t.toFixed(1);
+  $('tree-mode-label').textContent=t===0?'永遠只挑最高分 (Greedy)':'依機率擲骰子';
   resetTree();
 };
 document.querySelectorAll('.path-scenario').forEach(b=>b.onclick=()=>{
@@ -1914,7 +1912,7 @@ $("btn-export-report").onclick=exportReport;
 // 3 分鐘新手導覽
 // =========================================================
 const tourSteps=[
-  {id:"tour-explain",title:"第 1 站：先看 AI 怎麼玩「文字接龍」",text:"在這裡按下『▶ 播放文字接龍』，你會看到 AI 每次只猜下一個詞。如果中間不小心挑到橘紅色的歪樓詞，後面就會順著繼續圓謊！試試先開『只選第一名』再按『😈 下一步故意挑歪樓詞』：就算每步都挑最高分，一旦前面錯了，後面還是一路錯下去。"},
+  {id:"tour-explain",title:"第 1 站：先看 AI 怎麼玩「文字接龍」",text:"在這裡按下『▶ 播放文字接龍』，你會看到 AI 每次只猜下一個詞。如果中間不小心挑到橘紅色的歪樓詞，後面就會順著繼續圓謊！試試先把溫度拉到 0（永遠只挑最高分）再按『😈 下一步故意挑歪樓詞』：就算每步都挑最高分，一旦前面錯了，後面還是一路錯下去。"},
   {id:"tour-controls",title:"第 2 站：調整「題目熟不熟」與「自由發揮度」",text:"試著調整兩個開關，或直接點選『🔴 問超綱題＋乖乖牌模式』，看看當題目超出課本範圍（X > 10）時會發生什麼事。"},
   {id:"tour-reg-chart",title:"看左圖：安全好球帶 vs. 直線盲猜",text:"藍色寬帶是正確答案的『好球帶』。超過 10 之後，真實世界已經轉彎了（綠虛線），AI 卻還傻傻照著直線硬猜（藍實線）！"},
   {id:"tour-dist-chart",title:"看右圖：為什麼會「超有自信地答錯」？",text:"右圖把目前位置的答案分佈放大。當山峰塗紅色的面積越大，代表 AI 脫靶瞎掰的機率越高。"},
@@ -1977,7 +1975,7 @@ document.addEventListener("keydown",e=>{
   if(e.key==="ArrowLeft")$("tour-prev").click();
 });
 
-document.querySelectorAll(".path-scenario,.preset,#tour-rag .rag-mode,.agent-mode,.guess-rule,#btn-path-greedy").forEach(b=>b.setAttribute("aria-pressed",b.classList.contains("active")));
+document.querySelectorAll(".path-scenario,.preset,#tour-rag .rag-mode,.agent-mode,.guess-rule").forEach(b=>b.setAttribute("aria-pressed",b.classList.contains("active")));
 posInput.value=8;tempInput.value=.7;buildData();
 </script>
 </body>
