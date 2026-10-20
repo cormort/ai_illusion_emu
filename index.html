@@ -1927,7 +1927,8 @@ let tourIndex=0,lastFocus=null;
 function positionTour(target){
   const c=$("tour-card"),r=target.getBoundingClientRect(),w=Math.min(410,innerWidth-28);
   let left=Math.max(14,Math.min(innerWidth-w-14,r.left)),top=r.bottom+14;
-  if(top+240>innerHeight)top=Math.max(14,r.top-250);
+  const h=c.offsetHeight;
+  if(top+h>innerHeight-14)top=Math.max(14,r.top-h-14);
   c.style.left=left+"px";c.style.top=top+"px";
 }
 function showTour(i){
