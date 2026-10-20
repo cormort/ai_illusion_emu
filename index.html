@@ -13,7 +13,7 @@
   --shadow:0 12px 34px rgba(15,23,42,.08);--radius:18px;--projection-yellow:#ffd43b;
 }
 *{box-sizing:border-box}
-html{font-size:112.5%;scroll-behavior:smooth;scroll-padding-top:78px}
+html{font-size:112.5%;scroll-behavior:smooth;scroll-padding-top:140px}
 html:has(body.projection){font-size:125%}
 body{margin:0;background:linear-gradient(180deg,#e6f0ff 0,#f4f7fb 360px);color:var(--ink);font-family:"PingFang TC","Microsoft JhengHei","Noto Sans TC",system-ui,sans-serif;line-height:1.6}
 button,input,select,textarea{font:inherit}
@@ -311,6 +311,7 @@ body.projection .hero{background:#073b86}
   .rag-step:not(:last-child):after{display:none}
   .stage{padding:18px 16px}
   .step-nav{position:static}
+  html{scroll-padding-top:16px}
 }
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}.tree-edge.active,.tree-playhead.show{animation:none}}
 </style>
@@ -370,7 +371,7 @@ body.projection .hero{background:#073b86}
       </div>
       <div class="concept-card">
         <b>③ 擲骰子挑下一個詞</b>
-        <p>根據你設定的「自由發揮度（溫度）」，從候選詞裡挑出一個詞寫下來。</p>
+        <p>根據系統設定的「自由發揮度（溫度）」，從候選詞裡挑出一個詞寫下來。</p>
       </div>
       <div class="concept-card">
         <b>④ 順著剛寫的字繼續接</b>
@@ -1328,6 +1329,7 @@ function updateStats(){
   c.textContent=steady?"🎯 很一致（每次講法都差不多）":sd<tol?"🤔 有點分歧":"🎲 每次答案都不一樣";
   hint.innerHTML=steady&&r>.5?"<b>⚠️ 一致地答錯！</b>答案飄來飄去才是 AI 心裡沒底的警訊；但像超綱題這樣「每次都篤定說同一個錯答案」，多問幾次也抓不到，只能靠翻原文（第 3 站）。"
     :steady?"答案穩定、也多半落在好球帶內。但請記得：「一致」只代表 AI 很篤定，不代表一定正確。"
+    :sd<tol?"答案有些浮動，多半是溫度帶來的隨機性；重要事項仍請查證原文。"
     :"同一題問幾次答案差很多，代表 AI 心裡沒底——這是很好用的幻覺警訊，此時務必查證原文。";
 }
 
@@ -1727,7 +1729,7 @@ const agentCases={
       {cls:"err",text:"⚠️ <b>步驟 4（缺少 Harness 把關）：</b>算對了，但沒有權限沙盒、沒有自動驗收、也沒有真人簽核關卡，草稿直接流入下一站；萬一流程中讀到惡意指令，也沒有東西擋得住。"}
     ],
     output:"⚠️ <b>【發現異常草稿（未經 Harness 鎖定）】</b>經 Skill 驗算：三項設備實計 <b>155 萬元</b>（原單誤寫為 145 萬），已達第 8 條之 <b>150 萬元</b>公告金額，應依公告金額以上程序辦理，不得以未達公告金額方式逕行辦理。（提醒：目前尚未配置 Harness 簽核鎖）",
-    cardCls:"good",
+    cardCls:"warn",
     math:"✅ 抓出實為 155 萬",
     rule:"✅ 查出門檻 150 萬",
     safety:"🟡 算對但缺外層護欄"
@@ -1888,7 +1890,7 @@ function svgDataUri(id){
 function exportReport(){
   const {x,temp,expected}=currentModel(),n=generatedPoints.length,h=generatedPoints.filter(p=>p.isH).length,actual=n?h/n:0;
   const now=new Date();
-  const interpretation=x>10?"目前問題落在『課外超綱盲猜區（X > 10）』，代表 AI 以前沒讀過這類最新規定或冷門知識。此時如果不給它看小抄（RAG），就算把自由發揮度（溫度）調到最低，它也只會『超有自信地給出同一個錯誤答案』！":"目前問題落在『課本考古題區（X ≤ 10）』，AI 具備基本概念，此時會不會脫靶瞎掰主要由『自由發揮度（溫度）』決定。";
+  const interpretation=x>10?`目前問題落在『課外超綱盲猜區（X > 10）』，代表 AI 以前沒讀過這類最新規定或冷門知識。此時如果不給它看小抄（RAG），${temp<=0.4?"就算把自由發揮度（溫度）調到最低，它也只會『超有自信地給出同一個錯誤答案』！":"再加上溫度偏高，答案會既偏離事實又四處亂飄；就算把溫度調低，也只會變成『篤定地給出同一個錯誤答案』。"}`:"目前問題落在『課本考古題區（X ≤ 10）』，AI 具備基本概念，此時會不會脫靶瞎掰主要由『自由發揮度（溫度）』決定。";
   const report=`<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8"><title>AI 幻覺白話實驗報告</title><style>body{font-family:"PingFang TC","Microsoft JhengHei",sans-serif;color:#111827;max-width:1040px;margin:30px auto;padding:0 24px;line-height:1.65}h1{color:#073b86;border-bottom:4px solid #073b86;padding-bottom:8px}h2{color:#174ea6;margin-top:28px}.note{background:#fff7ed;border-left:5px solid #b45309;padding:12px;border-radius:6px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}.box{border:2px solid #cbd5e1;border-radius:8px;padding:12px;background:#f8fafc}.v{font-size:1.35rem;font-weight:900;color:#073b86;margin-top:4px}img{width:100%;border:1px solid #94a3b8;border-radius:8px;margin:10px 0}.footer{color:#64748b;border-top:1px solid #cbd5e1;margin-top:36px;padding-top:12px;font-size:.88rem}@media print{body{margin:0;max-width:100%}.box{border-width:1px}img{page-break-inside:avoid}}</style></head><body><h1>AI 幻覺白話互動實驗報告</h1><p><b>產出時間：</b>${now.toLocaleString("zh-TW")}</p><div class="note"><b>白話實驗說明：</b>本報告以「安全好球帶 vs. 脫靶紅點」模擬 AI 在面對考古題與超綱題時的表現，幫助團隊建立「給小抄（RAG）」與「真人把關」的防呆共識。</div><h2>一、本次實驗開關設定</h2><div class="grid"><div class="box">問題位置 X（熟不熟）<div class="v">${x.toFixed(1)}</div></div><div class="box">自由發揮度（溫度）<div class="v">${temp.toFixed(1)}</div></div><div class="box">題目所屬範圍<div class="v">${regionName(x)}</div></div><div class="box">累積回答次數<div class="v">${n} 次</div></div><div class="box">實際瞎掰紅點數<div class="v" style="color:#dc2626">${h} 次 (${(actual*100).toFixed(1)}%)</div></div><div class="box">理論瞎掰風險<div class="v">${(expected*100).toFixed(1)}%</div></div></div><h2>二、白話診斷結論</h2><p>${interpretation}</p><h2>三、實驗圖表紀錄</h2><h3>1. 全貌地圖：課本考古題 vs. 課外超綱盲猜區</h3><img src="${svgDataUri("canvas-reg")}"><h3>2. 放大鏡：AI 答案落點分佈與好球帶</h3><img src="${svgDataUri("canvas-dist")}"><h2>四、日常工作防呆 4 原則</h2><ul><li><strong>遇到新規定別考閉卷考：</strong> 只要涉及最新法規、內部辦法或個案數據，務必附上原文小抄（使用 RAG），別讓 AI 憑印象盲猜。</li><li><strong>低溫只能減少亂飄，不能減少錯誤：</strong> 調低溫度（若系統可設定）只會讓 AI 講法更一致；遇到沒讀過的規定，它只會更篤定地答錯，真正的解方是附上原文。</li><li><strong>看到出處標籤一定要點開看：</strong> AI 很會湊出看似專業的條號，務必花 30 秒對照原文是否真的支持結論。</li><li><strong>算數交給程式、決定交給真人：</strong> 金額加總請用 Excel 公式驗算；最終行政與業務決定由真人負全責。</li></ul><div class="footer">由「AI 幻覺白話互動實驗室」產出・可直接按 Ctrl+P / Cmd+P 列印成 PDF。</div></body></html>`;
   downloadBlob(new Blob([report],{type:"text/html;charset=utf-8"}),`AI幻覺白話實驗報告_${stamp()}.html`);
   toast("完整白話實驗報告已下載");
@@ -1903,8 +1905,9 @@ const tourSteps=[
   {id:"tour-controls",title:"第 2 站：調整「題目熟不熟」與「自由發揮度」",text:"試著調整兩個開關，或直接點選『🔴 問超綱題＋乖乖牌模式』，看看當題目超出課本範圍（X > 10）時會發生什麼事。"},
   {id:"tour-reg-chart",title:"看左圖：安全好球帶 vs. 直線盲猜",text:"藍色寬帶是正確答案的『好球帶』。超過 10 之後，真實世界已經轉彎了（綠虛線），AI 卻還傻傻照著直線硬猜（藍實線）！"},
   {id:"tour-dist-chart",title:"看右圖：為什麼會「超有自信地答錯」？",text:"右圖把目前位置的答案分佈放大。當山峰塗紅色的面積越大，代表 AI 脫靶瞎掰的機率越高。"},
+  {id:"guess-lab",title:"為什麼 AI 寧願瞎猜、也不說不知道？",text:"切換『答錯不倒扣／倒扣 1 分』，看計分方式怎麼左右 AI 要不要硬猜。也別忘了看左邊成績單的『答案一致嗎？』：答案飄來飄去是警訊，但超綱題會「一致地答錯」，多問幾次也抓不到！"},
   {id:"tour-rag",title:"第 3 站：改考「翻小抄開卷考 (RAG)」",text:"切換 4 種考試模式，親眼比較『閉卷硬猜』、『翻對小抄』、『拿錯小抄假引注』，以及最成熟的『找不到就老實說不知道（安全煞車）』！"},
-  {id:"tour-agent",title:"第 4 站：組裝 AI Agent ＋ Skill ＋ Harness",text:"切換 4 種裝備等級，體驗為什麼光有會跑腿的 Agent 還不夠，必須配發『Skill 專業技能包（查法規＋算數）』並套上『Harness 安全馬具』才不會越權暴衝！"},
+  {id:"tour-agent",title:"第 4 站：組裝 AI Agent ＋ Skill ＋ Harness",text:"切換 4 種裝備等級，體驗為什麼光有會跑腿的 Agent 還不夠，必須配發『Skill 專業技能包（查法規＋算數）』並套上『Harness 安全馬具』才不會越權暴衝——特別留意野放型 Agent 怎麼被網頁裡藏的指令（提示注入）劫持！"},
   {id:"tour-reliability",title:"第 5 站：日常工作的 7 步防呆清單",text:"最後別忘了點開這 7 張小卡片，把『看引注必點原文』、『算數交給 Excel』等實用防呆招數帶回日常工作！"}
 ];
 let tourIndex=0,lastFocus=null;
